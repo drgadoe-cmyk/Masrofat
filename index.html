@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<title>مصاريف</title>
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#F4791F" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+<!-- React, bundled locally (no CDN, no internet needed after first install) -->
+<script src="react.js"></script>
+<script src="react-dom.js"></script>
+
+<!-- Lightweight local replacement for recharts (see recharts-shim.js for why) -->
+<script src="recharts-shim.js"></script>
+
+<style>
+  body { margin: 0; background: #F3F5F9; }
+  #root { min-height: 100vh; }
+  #loading-fallback {
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-family: sans-serif; color: #8A93A6; font-size: 14px; text-align: center; padding: 20px;
+  }
+</style>
+</head>
+<body>
+<div id="root">
+  <div id="loading-fallback">جاري تحميل التطبيق...</div>
+</div>
+
+<!-- localStorage-backed shim for Claude's window.storage API -->
+<script src="storage-shim.js"></script>
+
+<!-- The app component itself, precompiled from JSX to plain JS ahead of time -->
+<script src="component.js"></script>
+
+<script>
+  const root = ReactDOM.createRoot(document.getElementById("root"));
+  root.render(React.createElement(HomeExpenses));
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
