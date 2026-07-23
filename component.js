@@ -1,4 +1,4 @@
-const { useState, useEffect, useMemo } = React;
+const { useState, useEffect, useMemo, useRef } = React;
 const { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } = Recharts;
 const CATEGORIES = [
   { id: "food", ar: "\u0623\u0643\u0644", en: "Food", icon: "\u{1F37D}\uFE0F", color: "#7CB342" },
@@ -69,9 +69,108 @@ function CategoryIcon({ id, size = 18, color = "currentColor", strokeWidth = 1.7
   return /* @__PURE__ */ React.createElement("svg", { width: size, height: size, viewBox: "0 0 24 24", ...p, style: { flexShrink: 0 } }, body);
 }
 function CatIconOrEmoji({ c, size, color }) {
-  return LINE_ICON_IDS.has(c.id) ? /* @__PURE__ */ React.createElement(CategoryIcon, { id: c.id, size, color }) : /* @__PURE__ */ React.createElement("span", null, c.icon);
+  return /* @__PURE__ */ React.createElement("span", { style: { fontSize: size } }, c.icon);
 }
 const CUSTOM_ICON_CHOICES = ["\u{1F37D}\uFE0F", "\u{1F697}", "\u{1F3E0}", "\u{1F6D2}", "\u{1F357}", "\u{1F48A}", "\u{1F389}", "\u{1F4DA}", "\u{1F6CD}\uFE0F", "\u25A6", "\u26FD", "\u{1FA7A}", "\u{1F354}", "\u{1F58A}\uFE0F", "\u{1FA99}"];
+function PatternPad({ onComplete, accentColor, errorColor, errorPulse }) {
+  const [path, setPath] = useState([]);
+  const [pos, setPos] = useState(null);
+  const padRef = useRef(null);
+  const draggingRef = useRef(false);
+  const SIZE = 260;
+  const PAD = 40;
+  const STEP = (SIZE - PAD * 2) / 2;
+  function dotCenter(i) {
+    const row = Math.floor(i / 3);
+    const col = i % 3;
+    return { x: PAD + col * STEP, y: PAD + row * STEP };
+  }
+  function pointFromEvent(e) {
+    const rect = padRef.current.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: (clientX - rect.left) / rect.width * SIZE, y: (clientY - rect.top) / rect.height * SIZE };
+  }
+  function nearestDot(pt) {
+    for (let i = 0; i < 9; i++) {
+      const c = dotCenter(i);
+      if (Math.hypot(c.x - pt.x, c.y - pt.y) < 26) return i;
+    }
+    return null;
+  }
+  function handleStart(e) {
+    e.preventDefault();
+    draggingRef.current = true;
+    const pt = pointFromEvent(e);
+    const hit = nearestDot(pt);
+    setPath(hit != null ? [hit] : []);
+    setPos(pt);
+  }
+  function handleMove(e) {
+    if (!draggingRef.current) return;
+    e.preventDefault();
+    const pt = pointFromEvent(e);
+    setPos(pt);
+    const hit = nearestDot(pt);
+    setPath((prev) => hit != null && !prev.includes(hit) ? [...prev, hit] : prev);
+  }
+  function handleEnd() {
+    if (!draggingRef.current) return;
+    draggingRef.current = false;
+    setPos(null);
+    onComplete(path);
+    setPath([]);
+  }
+  const color = errorPulse ? errorColor : accentColor;
+  return /* @__PURE__ */ React.createElement(
+    "svg",
+    {
+      ref: padRef,
+      width: SIZE,
+      height: SIZE,
+      viewBox: `0 0 ${SIZE} ${SIZE}`,
+      style: { touchAction: "none", userSelect: "none" },
+      onMouseDown: handleStart,
+      onMouseMove: handleMove,
+      onMouseUp: handleEnd,
+      onMouseLeave: handleEnd,
+      onTouchStart: handleStart,
+      onTouchMove: handleMove,
+      onTouchEnd: handleEnd
+    },
+    path.length > 1 && /* @__PURE__ */ React.createElement(
+      "polyline",
+      {
+        points: path.map((i) => {
+          const c = dotCenter(i);
+          return `${c.x},${c.y}`;
+        }).join(" "),
+        fill: "none",
+        stroke: color,
+        strokeWidth: "4",
+        strokeLinecap: "round",
+        strokeLinejoin: "round"
+      }
+    ),
+    path.length > 0 && pos && /* @__PURE__ */ React.createElement(
+      "line",
+      {
+        x1: dotCenter(path[path.length - 1]).x,
+        y1: dotCenter(path[path.length - 1]).y,
+        x2: pos.x,
+        y2: pos.y,
+        stroke: color,
+        strokeWidth: "4",
+        strokeLinecap: "round"
+      }
+    ),
+    Array.from({ length: 9 }).map((_, i) => {
+      const c = dotCenter(i);
+      const active = path.includes(i);
+      return /* @__PURE__ */ React.createElement("g", { key: i }, /* @__PURE__ */ React.createElement("circle", { cx: c.x, cy: c.y, r: "22", fill: "none", stroke: active ? color : "#D8DCE3", strokeWidth: "2" }), /* @__PURE__ */ React.createElement("circle", { cx: c.x, cy: c.y, r: active ? 9 : 6, fill: active ? color : "#C7CCD6" }));
+    })
+  );
+}
 const CUSTOM_COLOR_PALETTE = ["#EF6C00", "#00897B", "#5E35B1", "#3949AB", "#C0CA33", "#D81B60", "#00ACC1", "#6D4C41"];
 const MONTH_NAMES = {
   ar: ["\u064A\u0646\u0627\u064A\u0631", "\u0641\u0628\u0631\u0627\u064A\u0631", "\u0645\u0627\u0631\u0633", "\u0623\u0628\u0631\u064A\u0644", "\u0645\u0627\u064A\u0648", "\u064A\u0648\u0646\u064A\u0648", "\u064A\u0648\u0644\u064A\u0648", "\u0623\u063A\u0633\u0637\u0633", "\u0633\u0628\u062A\u0645\u0628\u0631", "\u0623\u0643\u062A\u0648\u0628\u0631", "\u0646\u0648\u0641\u0645\u0628\u0631", "\u062F\u064A\u0633\u0645\u0628\u0631"],
@@ -126,6 +225,10 @@ const TXT = {
     english: "English",
     backup: "\u0646\u0633\u062E\u0629 \u0627\u062D\u062A\u064A\u0627\u0637\u064A\u0629",
     backupHint: "\u0646\u0632\u0651\u0644 \u0646\u0633\u062E\u0629 \u0645\u0646 \u0628\u064A\u0627\u0646\u0627\u062A\u0643 \u0639\u0644\u0649 \u062C\u0647\u0627\u0632\u0643",
+    restoreBackup: "\u0627\u0633\u062A\u0639\u0627\u062F\u0629 \u0646\u0633\u062E\u0629 \u0627\u062D\u062A\u064A\u0627\u0637\u064A\u0629",
+    restoreHint: "\u0631\u062C\u0651\u0639 \u0628\u064A\u0627\u0646\u0627\u062A\u0643 \u0645\u0646 \u0645\u0644\u0641 \u0646\u0632\u0651\u0644\u062A\u0647 \u0642\u0628\u0644 \u0643\u062F\u0647",
+    restoreSuccess: "\u062A\u0645 \u0627\u0633\u062A\u0631\u062C\u0627\u0639 \u0627\u0644\u0628\u064A\u0627\u0646\u0627\u062A \u0628\u0646\u062C\u0627\u062D",
+    restoreError: "\u0627\u0644\u0645\u0644\u0641 \u062F\u0647 \u0645\u0634 \u0646\u0633\u062E\u0629 \u0627\u062D\u062A\u064A\u0627\u0637\u064A\u0629 \u0635\u062D\u064A\u062D\u0629",
     incomeListTitle: "\u0627\u0644\u062F\u062E\u0644",
     noIncomeMonth: "\u0644\u0633\u0647 \u0645\u0641\u064A\u0634 \u062F\u062E\u0644 \u0645\u0633\u062C\u0644 \u0641\u064A \u0627\u0644\u0634\u0647\u0631 \u062F\u0647.",
     lowBalanceWarning: "\u0627\u0644\u0631\u0635\u064A\u062F \u0627\u0644\u0645\u062A\u0628\u0642\u064A \u0623\u0642\u0644 \u0645\u0646 \u0661\u0660\u0660\u0660",
@@ -144,6 +247,20 @@ const TXT = {
     monthStart: "\u0628\u062F\u0627\u064A\u0629 \u0627\u0644\u0634\u0647\u0631 (\u064A\u0648\u0645)",
     monthStartHint: "\u0627\u0644\u0631\u0635\u064A\u062F \u0627\u0644\u0645\u062A\u0628\u0642\u064A \u0628\u064A\u062A\u0631\u062D\u0651\u0644 \u062A\u0644\u0642\u0627\u0626\u064A \u0644\u0644\u0634\u0647\u0631 \u0627\u0644\u062C\u062F\u064A\u062F",
     notifications: "\u0627\u0644\u062A\u0646\u0628\u064A\u0647\u0627\u062A",
+    appLock: "\u0642\u0641\u0644 \u0627\u0644\u062A\u0637\u0628\u064A\u0642",
+    appLockHint: "\u0627\u0637\u0644\u0628 \u0646\u0645\u0637 \u0623\u0648 \u0628\u0635\u0645\u0629 \u0643\u0644 \u0645\u0627 \u062A\u0641\u062A\u062D \u0627\u0644\u062A\u0637\u0628\u064A\u0642",
+    setPatternTitle: "\u0627\u0631\u0633\u0645 \u0646\u0645\u0637 \u0627\u0644\u0642\u0641\u0644",
+    confirmPatternTitle: "\u0623\u0639\u062F \u0631\u0633\u0645 \u0627\u0644\u0646\u0645\u0637 \u0644\u0644\u062A\u0623\u0643\u064A\u062F",
+    patternTooShort: "\u0644\u0627\u0632\u0645 \u062A\u0648\u0635\u0644 \u0664 \u0646\u0642\u0637 \u0639\u0644\u0649 \u0627\u0644\u0623\u0642\u0644",
+    patternMismatch: "\u0627\u0644\u0646\u0645\u0637 \u0645\u0634 \u0645\u062A\u0637\u0627\u0628\u0642\u060C \u062D\u0627\u0648\u0644 \u062A\u0627\u0646\u064A",
+    unlockTitle: "\u0627\u0631\u0633\u0645 \u0627\u0644\u0646\u0645\u0637 \u0644\u0641\u062A\u062D \u0627\u0644\u062A\u0637\u0628\u064A\u0642",
+    wrongPattern: "\u0646\u0645\u0637 \u063A\u0644\u0637\u060C \u062D\u0627\u0648\u0644 \u062A\u0627\u0646\u064A",
+    useFingerprint: "\u0627\u0633\u062A\u062E\u062F\u0645 \u0627\u0644\u0628\u0635\u0645\u0629",
+    addFingerprintQ: "\u062A\u062D\u0628 \u062A\u0636\u064A\u0641 \u0641\u062A\u062D \u0628\u0627\u0644\u0628\u0635\u0645\u0629 \u0643\u0645\u0627\u0646\u061F",
+    fingerprintAdded: "\u062A\u0645 \u062A\u0641\u0639\u064A\u0644 \u0627\u0644\u0628\u0635\u0645\u0629",
+    skip: "\u062A\u062E\u0637\u064A",
+    tryAgain: "\u062D\u0627\u0648\u0644 \u062A\u0627\u0646\u064A",
+    disableLockConfirm: "\u0645\u062A\u0623\u0643\u062F \u0639\u0627\u064A\u0632 \u062A\u0634\u064A\u0644 \u0642\u0641\u0644 \u0627\u0644\u062A\u0637\u0628\u064A\u0642\u061F",
     more: "\u0627\u0644\u0645\u0632\u064A\u062F",
     schedules: "\u062C\u062F\u0627\u0648\u0644",
     tabCurrent: "\u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u062D\u0627\u0644\u064A",
@@ -191,6 +308,10 @@ const TXT = {
     english: "English",
     backup: "Backup",
     backupHint: "Download a copy of your data to your device",
+    restoreBackup: "Restore backup",
+    restoreHint: "Bring back your data from a file you downloaded before",
+    restoreSuccess: "Data restored successfully",
+    restoreError: "This isn't a valid backup file",
     incomeListTitle: "Income",
     noIncomeMonth: "No income recorded this month yet.",
     lowBalanceWarning: "Your remaining balance is below 1000",
@@ -209,6 +330,20 @@ const TXT = {
     monthStart: "Month start day",
     monthStartHint: "Remaining balance rolls over automatically",
     notifications: "Notifications",
+    appLock: "App Lock",
+    appLockHint: "Require a pattern or fingerprint every time you open the app",
+    setPatternTitle: "Draw a lock pattern",
+    confirmPatternTitle: "Redraw the pattern to confirm",
+    patternTooShort: "Connect at least 4 dots",
+    patternMismatch: "Pattern doesn't match, try again",
+    unlockTitle: "Draw your pattern to unlock",
+    wrongPattern: "Wrong pattern, try again",
+    useFingerprint: "Use fingerprint",
+    addFingerprintQ: "Also add fingerprint unlock?",
+    fingerprintAdded: "Fingerprint enabled",
+    skip: "Skip",
+    tryAgain: "Try again",
+    disableLockConfirm: "Are you sure you want to remove the app lock?",
     more: "More",
     schedules: "Schedules",
     tabCurrent: "Current month",
@@ -272,7 +407,6 @@ function HomeExpenses() {
   const [language, setLanguage] = useState("ar");
   const [themeColor, setThemeColor] = useState("orange");
   const [showMenu, setShowMenu] = useState(false);
-  const [showMonthSettings, setShowMonthSettings] = useState(false);
   const [monthStartDay, setMonthStartDay] = useState(1);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [currency, setCurrency] = useState("EGP");
@@ -281,6 +415,16 @@ function HomeExpenses() {
   const [newCatName, setNewCatName] = useState("");
   const [newCatIcon, setNewCatIcon] = useState(CUSTOM_ICON_CHOICES[0]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [appLockEnabled, setAppLockEnabled] = useState(false);
+  const [appLockPattern, setAppLockPattern] = useState(null);
+  const [biometricCredentialId, setBiometricCredentialId] = useState(null);
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockSetupStep, setLockSetupStep] = useState(null);
+  const [firstPatternDraw, setFirstPatternDraw] = useState(null);
+  const [lockError, setLockError] = useState("");
+  const [showDisableLockConfirm, setShowDisableLockConfirm] = useState(false);
+  const [restoreMessage, setRestoreMessage] = useState("");
+  const restoreInputRef = useRef(null);
   const [showAddSheet, setShowAddSheet] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [viewingExpenseId, setViewingExpenseId] = useState(null);
@@ -309,8 +453,8 @@ function HomeExpenses() {
       meta.setAttribute("name", "theme-color");
       document.head.appendChild(meta);
     }
-    meta.setAttribute("content", theme.accent);
-  }, [theme.accent]);
+    meta.setAttribute("content", "#F3F5F9");
+  }, []);
   useEffect(() => {
     (async () => {
       try {
@@ -337,6 +481,12 @@ function HomeExpenses() {
           if (s.monthStartDay) setMonthStartDay(s.monthStartDay);
           if (typeof s.notificationsEnabled === "boolean") setNotificationsEnabled(s.notificationsEnabled);
           if (s.currency) setCurrency(s.currency);
+          if (s.appLockEnabled && s.appLockPattern) {
+            setAppLockEnabled(true);
+            setAppLockPattern(s.appLockPattern);
+            setBiometricCredentialId(s.biometricCredentialId || null);
+            setIsLocked(true);
+          }
         }
       } catch (e) {
       } finally {
@@ -367,28 +517,131 @@ function HomeExpenses() {
     } catch (e) {
     }
   }
+  function currentSettingsBase() {
+    return {
+      language,
+      themeColor,
+      monthStartDay,
+      notificationsEnabled,
+      currency,
+      appLockEnabled,
+      appLockPattern,
+      biometricCredentialId
+    };
+  }
   function changeLanguage(lang) {
     setLanguage(lang);
-    persistSettings({ language: lang, themeColor, monthStartDay, notificationsEnabled, currency });
+    persistSettings({ ...currentSettingsBase(), language: lang });
   }
   function changeTheme(color) {
     setThemeColor(color);
-    persistSettings({ language, themeColor: color, monthStartDay, notificationsEnabled, currency });
+    persistSettings({ ...currentSettingsBase(), themeColor: color });
   }
   function changeMonthStartDay(day) {
     const clamped = Math.min(31, Math.max(1, day));
     setMonthStartDay(clamped);
-    persistSettings({ language, themeColor, monthStartDay: clamped, notificationsEnabled, currency });
+    persistSettings({ ...currentSettingsBase(), monthStartDay: clamped });
   }
   function toggleNotifications() {
     const next = !notificationsEnabled;
     setNotificationsEnabled(next);
     if (!next) setShowLowBalanceWarning(false);
-    persistSettings({ language, themeColor, monthStartDay, notificationsEnabled: next, currency });
+    persistSettings({ ...currentSettingsBase(), notificationsEnabled: next });
   }
   function changeCurrency(code) {
     setCurrency(code);
-    persistSettings({ language, themeColor, monthStartDay, notificationsEnabled, currency: code });
+    persistSettings({ ...currentSettingsBase(), currency: code });
+  }
+  function startEnableAppLock() {
+    setFirstPatternDraw(null);
+    setLockError("");
+    setLockSetupStep("draw");
+  }
+  function requestDisableAppLock() {
+    setShowDisableLockConfirm(true);
+  }
+  function confirmDisableAppLock() {
+    setAppLockEnabled(false);
+    setAppLockPattern(null);
+    setBiometricCredentialId(null);
+    setShowDisableLockConfirm(false);
+    persistSettings({ ...currentSettingsBase(), appLockEnabled: false, appLockPattern: null, biometricCredentialId: null });
+  }
+  function handlePatternDrawn(sequence) {
+    if (sequence.length < 4) {
+      setLockError(t.patternTooShort);
+      return;
+    }
+    setLockError("");
+    if (lockSetupStep === "draw") {
+      setFirstPatternDraw(sequence);
+      setLockSetupStep("confirm");
+    } else if (lockSetupStep === "confirm") {
+      if (JSON.stringify(sequence) !== JSON.stringify(firstPatternDraw)) {
+        setLockError(t.patternMismatch);
+        setLockSetupStep("draw");
+        setFirstPatternDraw(null);
+        return;
+      }
+      setAppLockPattern(sequence);
+      setAppLockEnabled(true);
+      persistSettings({ ...currentSettingsBase(), appLockEnabled: true, appLockPattern: sequence });
+      setLockSetupStep("askBiometric");
+    }
+  }
+  async function enrollFingerprint() {
+    try {
+      const challenge = new Uint8Array(32);
+      crypto.getRandomValues(challenge);
+      const userId = new Uint8Array(16);
+      crypto.getRandomValues(userId);
+      const cred = await navigator.credentials.create({
+        publicKey: {
+          challenge,
+          rp: { name: "\u0645\u0635\u0627\u0631\u064A\u0641" },
+          user: { id: userId, name: "user", displayName: "\u0645\u0635\u0627\u0631\u064A\u0641" },
+          pubKeyCredParams: [{ type: "public-key", alg: -7 }, { type: "public-key", alg: -257 }],
+          authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" },
+          timeout: 6e4
+        }
+      });
+      if (cred) {
+        const idB64 = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+        setBiometricCredentialId(idB64);
+        persistSettings({ ...currentSettingsBase(), appLockEnabled: true, appLockPattern, biometricCredentialId: idB64 });
+      }
+    } catch (e) {
+    }
+    setLockSetupStep(null);
+  }
+  async function tryUnlockWithFingerprint() {
+    if (!biometricCredentialId) return;
+    try {
+      const challenge = new Uint8Array(32);
+      crypto.getRandomValues(challenge);
+      const idBytes = Uint8Array.from(atob(biometricCredentialId), (c) => c.charCodeAt(0));
+      const assertion = await navigator.credentials.get({
+        publicKey: {
+          challenge,
+          allowCredentials: [{ id: idBytes, type: "public-key" }],
+          userVerification: "required",
+          timeout: 6e4
+        }
+      });
+      if (assertion) {
+        setIsLocked(false);
+        setLockError("");
+      }
+    } catch (e) {
+    }
+  }
+  function attemptUnlock(sequence) {
+    if (appLockPattern && JSON.stringify(sequence) === JSON.stringify(appLockPattern)) {
+      setIsLocked(false);
+      setLockError("");
+    } else {
+      setLockError(t.wrongPattern);
+    }
   }
   async function persistExpenses(next) {
     setExpenses(next);
@@ -511,6 +764,29 @@ function HomeExpenses() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+  function triggerRestoreBackup() {
+    if (restoreInputRef.current) restoreInputRef.current.click();
+  }
+  function handleRestoreFile(e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        const restoredExpenses = Array.isArray(data.expenses) ? data.expenses : [];
+        const restoredIncomes = Array.isArray(data.incomes) ? data.incomes : [];
+        persistExpenses(restoredExpenses);
+        persistIncomes(restoredIncomes);
+        setRestoreMessage(t.restoreSuccess);
+      } catch (err) {
+        setRestoreMessage(t.restoreError);
+      }
+      setTimeout(() => setRestoreMessage(""), 4e3);
+    };
+    reader.readAsText(file);
   }
   function getPeriodRange(year, month, startDay) {
     const pad = (n) => String(n).padStart(2, "0");
@@ -741,6 +1017,80 @@ function HomeExpenses() {
         }
         @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
       `),
+    isLocked && /* @__PURE__ */ React.createElement("div", { style: {
+      position: "fixed",
+      inset: 0,
+      zIndex: 100,
+      background: `linear-gradient(135deg, ${theme.from} 0%, ${theme.to} 100%)`,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 24
+    } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 40, marginBottom: 10 } }, "\u{1F512}"), /* @__PURE__ */ React.createElement("div", { style: { color: "#fff", fontSize: 15, fontWeight: 600, marginBottom: 18, textAlign: "center" } }, t.unlockTitle), /* @__PURE__ */ React.createElement("div", { style: { background: "#fff", borderRadius: 20, padding: 20 } }, /* @__PURE__ */ React.createElement(
+      PatternPad,
+      {
+        onComplete: attemptUnlock,
+        accentColor: theme.accent,
+        errorColor: "#E64A3B",
+        errorPulse: !!lockError
+      }
+    )), /* @__PURE__ */ React.createElement("div", { style: { height: 20, marginTop: 10 } }, lockError && /* @__PURE__ */ React.createElement("div", { style: { color: "#fff", background: "rgba(230,74,59,0.9)", padding: "4px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700 } }, lockError)), biometricCredentialId && /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        onClick: tryUnlockWithFingerprint,
+        style: {
+          marginTop: 8,
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          background: "rgba(255,255,255,0.16)",
+          border: "none",
+          borderRadius: 14,
+          padding: "10px 18px",
+          color: "#fff",
+          fontWeight: 700,
+          fontSize: 14,
+          cursor: "pointer"
+        }
+      },
+      /* @__PURE__ */ React.createElement("span", { style: { fontSize: 18 } }, "\u{1F513}"),
+      t.useFingerprint
+    )),
+    lockSetupStep && /* @__PURE__ */ React.createElement("div", { style: { position: "fixed", inset: 0, zIndex: 100, background: "rgba(20,26,38,0.6)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 } }, /* @__PURE__ */ React.createElement("div", { style: { background: "#fff", borderRadius: 20, padding: 24, width: "100%", maxWidth: 340, display: "flex", flexDirection: "column", alignItems: "center" } }, lockSetupStep === "askBiometric" ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 40, marginBottom: 10 } }, "\u{1F446}"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 15, fontWeight: 700, marginBottom: 18, textAlign: "center" } }, t.addFingerprintQ), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10, width: "100%" } }, /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        onClick: () => setLockSetupStep(null),
+        style: { flex: 1, padding: "12px", borderRadius: 12, border: "1px solid #E4E7ED", background: "#fff", color: "#4a4f5a", fontWeight: 700, fontSize: 14, cursor: "pointer" }
+      },
+      t.skip
+    ), /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        onClick: enrollFingerprint,
+        style: { flex: 1, padding: "12px", borderRadius: 12, border: "none", background: theme.accent, color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }
+      },
+      t.useFingerprint
+    ))) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 15, fontWeight: 700, marginBottom: 16, textAlign: "center" } }, lockSetupStep === "draw" ? t.setPatternTitle : t.confirmPatternTitle), /* @__PURE__ */ React.createElement(
+      PatternPad,
+      {
+        onComplete: handlePatternDrawn,
+        accentColor: theme.accent,
+        errorColor: "#E64A3B",
+        errorPulse: !!lockError
+      }
+    ), /* @__PURE__ */ React.createElement("div", { style: { height: 20, marginTop: 8 } }, lockError && /* @__PURE__ */ React.createElement("div", { style: { color: "#E64A3B", fontSize: 12, fontWeight: 700 } }, lockError)), /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        onClick: () => {
+          setLockSetupStep(null);
+          setLockError("");
+          setFirstPatternDraw(null);
+        },
+        style: { marginTop: 4, background: "none", border: "none", color: "#9AA3B2", fontSize: 13, cursor: "pointer", textDecoration: "underline" }
+      },
+      t.cancel
+    )))),
     /* @__PURE__ */ React.createElement("div", { style: { maxWidth: 460, margin: "0 auto", padding: "16px 16px 0", position: "relative" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement(
       "button",
       {
@@ -761,10 +1111,10 @@ function HomeExpenses() {
       "button",
       {
         onClick: () => setShowMenu((v) => !v),
-        "aria-label": "menu",
-        style: { width: 40, height: 40, borderRadius: 12, background: "#fff", border: "none", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", cursor: "pointer", fontSize: 16 }
+        "aria-label": "settings",
+        style: { width: 40, height: 40, borderRadius: 12, background: "#fff", border: "none", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", cursor: "pointer", fontSize: 18 }
       },
-      "\u2630"
+      "\u2699\uFE0F"
     ))), showLowBalanceWarning && /* @__PURE__ */ React.createElement(
       "div",
       {
@@ -857,29 +1207,25 @@ function HomeExpenses() {
           "\u2715"
         ),
         /* @__PURE__ */ React.createElement(
-          "button",
+          "div",
           {
-            onClick: () => setShowMonthSettings((v) => !v),
             style: {
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
-              width: "100%",
               gap: 8,
+              width: "100%",
               padding: "8px 4px",
-              border: "none",
               marginTop: 16,
-              background: "none",
               color: "#4a4f5a",
               fontSize: 13,
-              fontWeight: 600,
-              cursor: "pointer"
+              fontWeight: 600
             }
           },
-          /* @__PURE__ */ React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 16 } }, "\u2699\uFE0F"), t.settings),
-          /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: "#B0B6C2" } }, showMonthSettings ? "\u25B2" : "\u25BC")
+          /* @__PURE__ */ React.createElement("span", { style: { fontSize: 16 } }, "\u2699\uFE0F"),
+          t.settings
         ),
-        showMonthSettings && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#9AA3B2", margin: "10px 0 6px", fontWeight: 600 } }, t.language), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, marginBottom: 12, background: "#F3F5F9", borderRadius: 10, padding: 3 } }, /* @__PURE__ */ React.createElement(
+        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#9AA3B2", margin: "10px 0 6px", fontWeight: 600 } }, t.language),
+        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, marginBottom: 12, background: "#F3F5F9", borderRadius: 10, padding: 3 } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => changeLanguage("ar"),
@@ -893,7 +1239,9 @@ function HomeExpenses() {
             style: { flex: 1, padding: "7px 0", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 700, background: language === "en" ? "#fff" : "transparent", color: language === "en" ? theme.accent : "#8A93A6", boxShadow: language === "en" ? "0 1px 3px rgba(0,0,0,0.08)" : "none" }
           },
           t.english
-        )), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#9AA3B2", margin: "10px 0 4px", fontWeight: 600 } }, t.monthStart), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 } }, /* @__PURE__ */ React.createElement(
+        )),
+        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#9AA3B2", margin: "10px 0 4px", fontWeight: 600 } }, t.monthStart),
+        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => changeMonthStartDay(monthStartDay - 1),
@@ -907,7 +1255,10 @@ function HomeExpenses() {
             style: { width: 26, height: 26, borderRadius: 8, border: "1px solid #E4E7ED", background: "#fff", cursor: "pointer", fontSize: 15, lineHeight: 1 }
           },
           "+"
-        )), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#B0B6C2", marginTop: 4 } }, t.monthStartHint), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#9AA3B2", margin: "12px 0 6px", fontWeight: 600 } }, t.currency), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } }, CURRENCIES.map((cur) => /* @__PURE__ */ React.createElement(
+        )),
+        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#B0B6C2", marginTop: 4 } }, t.monthStartHint),
+        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#9AA3B2", margin: "12px 0 6px", fontWeight: 600 } }, t.currency),
+        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } }, CURRENCIES.map((cur) => /* @__PURE__ */ React.createElement(
           "button",
           {
             key: cur.code,
@@ -925,7 +1276,7 @@ function HomeExpenses() {
             }
           },
           cur.code
-        )))),
+        ))),
         /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14, paddingTop: 10, borderTop: "1px solid #F0F1F5" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, fontWeight: 600, color: "#4a4f5a" } }, t.notifications), /* @__PURE__ */ React.createElement(
           "button",
           {
@@ -955,6 +1306,35 @@ function HomeExpenses() {
             transition: "left 0.15s, right 0.15s"
           } })
         )),
+        /* @__PURE__ */ React.createElement("div", { style: { marginTop: 14, paddingTop: 10, borderTop: "1px solid #F0F1F5" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, fontWeight: 600, color: "#4a4f5a" } }, t.appLock), /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => appLockEnabled ? requestDisableAppLock() : startEnableAppLock(),
+            "aria-label": "toggle app lock",
+            style: {
+              width: 40,
+              height: 22,
+              borderRadius: 11,
+              border: "none",
+              cursor: "pointer",
+              background: appLockEnabled ? theme.accent : "#D8DCE3",
+              position: "relative",
+              padding: 0,
+              transition: "background 0.15s"
+            }
+          },
+          /* @__PURE__ */ React.createElement("span", { style: {
+            position: "absolute",
+            top: 2,
+            [appLockEnabled ? isRtl ? "left" : "right" : isRtl ? "right" : "left"]: 2,
+            width: 18,
+            height: 18,
+            borderRadius: "50%",
+            background: "#fff",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+            transition: "left 0.15s, right 0.15s"
+          } })
+        )), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#B0B6C2", marginTop: 4 } }, t.appLockHint), showDisableLockConfirm && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 10, display: "flex", gap: 8, alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: "#4a463d", flex: 1 } }, t.disableLockConfirm), /* @__PURE__ */ React.createElement("button", { onClick: confirmDisableAppLock, style: { padding: "5px 10px", borderRadius: 8, border: "none", background: "#E64A3B", color: "#fff", fontWeight: 700, fontSize: 11, cursor: "pointer" } }, t.yesReset), /* @__PURE__ */ React.createElement("button", { onClick: () => setShowDisableLockConfirm(false), style: { padding: "5px 10px", borderRadius: 8, border: "1px solid #E4E7ED", background: "#fff", color: "#4a4f5a", fontWeight: 700, fontSize: 11, cursor: "pointer" } }, t.noReset))),
         /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#9AA3B2", margin: "10px 0 8px", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 14 } }, "\u{1F3A8}"), t.appColor),
         /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10, padding: "0 2px" } }, Object.entries(THEME_COLORS).map(([key, c]) => /* @__PURE__ */ React.createElement(
           "button",
@@ -996,6 +1376,49 @@ function HomeExpenses() {
           /* @__PURE__ */ React.createElement("span", { style: { fontSize: 16 } }, "\u{1F4BE}"),
           /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#1E2530" } }, t.backup), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#9AA3B2" } }, t.backupHint))
         ),
+        /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: triggerRestoreBackup,
+            style: {
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              width: "100%",
+              marginTop: 10,
+              paddingTop: 10,
+              borderTop: "1px solid #F0F1F5",
+              border: "none",
+              borderTopStyle: "solid",
+              background: "none",
+              cursor: "pointer",
+              textAlign: isRtl ? "right" : "left"
+            }
+          },
+          /* @__PURE__ */ React.createElement("span", { style: { fontSize: 16 } }, "\u{1F4E5}"),
+          /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "#1E2530" } }, t.restoreBackup), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#9AA3B2" } }, t.restoreHint))
+        ),
+        /* @__PURE__ */ React.createElement(
+          "input",
+          {
+            ref: restoreInputRef,
+            type: "file",
+            accept: "application/json,.json",
+            onChange: handleRestoreFile,
+            style: {
+              position: "absolute",
+              width: 1,
+              height: 1,
+              padding: 0,
+              margin: -1,
+              overflow: "hidden",
+              clip: "rect(0,0,0,0)",
+              whiteSpace: "nowrap",
+              border: 0
+            }
+          }
+        ),
+        restoreMessage && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: restoreMessage === t.restoreSuccess ? "#2E9E5B" : "#E64A3B", marginTop: 6, textAlign: "center" } }, restoreMessage),
         !confirmReset ? /* @__PURE__ */ React.createElement(
           "button",
           {
@@ -1104,7 +1527,7 @@ function HomeExpenses() {
         justifyContent: "center",
         boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
         padding: "0 8px"
-      } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, fontWeight: 600, color: "#fff", opacity: 0.9, textAlign: "center" } }, t.totalBalance), /* @__PURE__ */ React.createElement("div", { className: "amount-num", style: { fontSize: 21, fontWeight: 800, color: "#fff", lineHeight: 1.2, marginTop: 4 } }, showBalance ? `${balance < 0 ? "-" : ""}${fmt(Math.abs(balance))} ${currency}` : "\u2605\u2605\u2605\u2605"))
+      } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, fontWeight: 600, color: "#fff", textAlign: "center" } }, t.totalBalance), /* @__PURE__ */ React.createElement("div", { className: "amount-num", style: { fontSize: 21, fontWeight: 800, color: "#fff", lineHeight: 1.2, marginTop: 4 } }, showBalance ? `${balance < 0 ? "-" : ""}${fmt(Math.abs(balance))} ${currency}` : "\u2605\u2605\u2605\u2605"))
     ), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, display: "flex", flexDirection: "column", gap: 10, justifyContent: "center", minWidth: 0 } }, /* @__PURE__ */ React.createElement(
       "button",
       {
@@ -1121,7 +1544,7 @@ function HomeExpenses() {
           width: "100%"
         }
       },
-      /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-start" } }, /* @__PURE__ */ React.createElement("span", { style: { width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.35)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, color: "#fff", flexShrink: 0 } }, "\u2193"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 16, fontWeight: 700 } }, t.income)),
+      /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-start" } }, /* @__PURE__ */ React.createElement("span", { style: { width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.35)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, color: "#fff", flexShrink: 0 } }, "\u2193"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 16, fontWeight: 600 } }, t.income)),
       /* @__PURE__ */ React.createElement("div", { className: "amount-num", style: { fontSize: 17, fontWeight: 700, marginTop: 4 } }, currency, " ", fmt(monthIncomeTotal))
     ), /* @__PURE__ */ React.createElement(
       "div",

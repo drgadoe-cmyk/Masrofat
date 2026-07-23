@@ -1,4 +1,4 @@
-const CACHE_NAME = "masroufat-v6";
+const CACHE_NAME = "masroufat-v10";
 const ASSETS = [
   "./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png",
   "./component.js", "./storage-shim.js", "./recharts-shim.js",
