@@ -274,7 +274,12 @@ const TXT = {
     factAllIncome: "\u0625\u062C\u0645\u0627\u0644\u064A \u0627\u0644\u062F\u062E\u0644",
     factAvgMonthly: "\u0645\u062A\u0648\u0633\u0637 \u0627\u0644\u0635\u0631\u0641 \u0627\u0644\u0634\u0647\u0631\u064A",
     factTopCategory: "\u0623\u0643\u062A\u0631 \u0641\u0626\u0629 \u0635\u0631\u0641 \u0639\u0644\u064A\u0647\u0627",
-    factTxCount: "\u0639\u062F\u062F \u0627\u0644\u0645\u0639\u0627\u0645\u0644\u0627\u062A"
+    factTxCount: "\u0639\u062F\u062F \u0627\u0644\u0645\u0639\u0627\u0645\u0644\u0627\u062A",
+    daysLeftLast: "\u0627\u0644\u0646\u0647\u0627\u0631\u062F\u0629 \u0622\u062E\u0631 \u064A\u0648\u0645 \u0642\u0628\u0644 \u0627\u0644\u0631\u0627\u062A\u0628",
+    daysLeftOne: "\u064A\u0648\u0645 \u0648\u0627\u062D\u062F \u0645\u062A\u0628\u0642\u064A \u0644\u062D\u062F \u0627\u0644\u0631\u0627\u062A\u0628",
+    daysLeftTwo: "\u064A\u0648\u0645\u064A\u0646 \u0645\u062A\u0628\u0642\u064A\u064A\u0646 \u0644\u062D\u062F \u0627\u0644\u0631\u0627\u062A\u0628",
+    daysLeftFew: "\u0645\u062A\u0628\u0642\u064A {n} \u0623\u064A\u0627\u0645 \u0644\u062D\u062F \u0627\u0644\u0631\u0627\u062A\u0628",
+    daysLeftMany: "\u0645\u062A\u0628\u0642\u064A {n} \u064A\u0648\u0645 \u0644\u062D\u062F \u0627\u0644\u0631\u0627\u062A\u0628"
   },
   en: {
     totalBalance: "Remaining Balance",
@@ -357,7 +362,12 @@ const TXT = {
     factAllIncome: "Total income",
     factAvgMonthly: "Avg. monthly spend",
     factTopCategory: "Top spending category",
-    factTxCount: "Transactions count"
+    factTxCount: "Transactions count",
+    daysLeftLast: "Last day before payday",
+    daysLeftOne: "1 day left until payday",
+    daysLeftTwo: "1 day left until payday",
+    daysLeftFew: "{n} days left until payday",
+    daysLeftMany: "{n} days left until payday"
   }
 };
 function lerpColor(hexA, hexB, t) {
@@ -383,6 +393,21 @@ function todayStr() {
 function parseDateStr(str) {
   const [y, m, d] = String(str).split("-").map(Number);
   return { year: y, month: (m || 1) - 1, day: d || 1 };
+}
+function addDaysToStr(str, delta) {
+  const { year, month, day } = parseDateStr(str);
+  const d = new Date(year, month, day + delta);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+function formatPeriodLabel(range, language) {
+  const start = parseDateStr(range.startStr);
+  const lastDayStr = addDaysToStr(range.endStr, -1);
+  const end = parseDateStr(lastDayStr);
+  const names = MONTH_NAMES[language];
+  const startLabel = `${start.day} ${names[start.month]}`;
+  const endLabel = start.year !== end.year ? `${end.day} ${names[end.month]} ${end.year}` : `${end.day} ${names[end.month]}`;
+  return `${startLabel} \u2013 ${endLabel}`;
 }
 function toWesternDigits(str) {
   return String(str).replace(/[٠-٩۰-۹]/g, (d) => {
@@ -836,6 +861,21 @@ function HomeExpenses() {
   const GAUGE_R = 64;
   const GAUGE_CIRC = 2 * Math.PI * GAUGE_R;
   const gaugeDashOffset = GAUGE_CIRC * (1 - balancePct);
+  const isViewingCurrentPeriod = todayStr() >= periodRange.startStr && todayStr() < periodRange.endStr;
+  const daysRemaining = useMemo(() => {
+    if (!isViewingCurrentPeriod) return null;
+    const today = parseDateStr(todayStr());
+    const lastDay = parseDateStr(addDaysToStr(periodRange.endStr, -1));
+    const msPerDay = 24 * 60 * 60 * 1e3;
+    const diff = Math.round((new Date(lastDay.year, lastDay.month, lastDay.day) - new Date(today.year, today.month, today.day)) / msPerDay);
+    return diff + 1;
+  }, [isViewingCurrentPeriod, periodRange]);
+  function formatDaysLeft(n, language) {
+    if (n <= 1) return TXT[language].daysLeftLast;
+    if (n === 2) return TXT[language].daysLeftTwo;
+    const key = language === "ar" && n >= 3 && n <= 10 ? "daysLeftFew" : "daysLeftMany";
+    return TXT[language][key].replace("{n}", n);
+  }
   useEffect(() => {
     if (!loading && notificationsEnabled && balance <= 999) {
       setShowLowBalanceWarning(true);
@@ -1099,7 +1139,7 @@ function HomeExpenses() {
         style: { background: "#fff", border: "none", borderRadius: 10, width: 34, height: 34, fontSize: 16, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }
       },
       isRtl ? "\u2039" : "\u203A"
-    ), /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 700, fontSize: 15 } }, MONTH_NAMES[language][viewMonth], " ", viewYear), /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center" } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 15 } }, MONTH_NAMES[language][viewMonth], " ", viewYear), monthStartDay !== 1 && /* @__PURE__ */ React.createElement("div", { className: "amount-num", style: { fontSize: 11, color: "#9AA3B2", marginTop: 1 } }, formatPeriodLabel(periodRange, language))), /* @__PURE__ */ React.createElement(
       "button",
       {
         onClick: () => shiftMonth(-1),
@@ -1562,7 +1602,7 @@ function HomeExpenses() {
       },
       /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-start" } }, /* @__PURE__ */ React.createElement("span", { style: { width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.35)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, color: "#fff", flexShrink: 0 } }, "\u2191"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 16, fontWeight: 600 } }, t.expense)),
       /* @__PURE__ */ React.createElement("div", { className: "amount-num", style: { fontSize: 17, fontWeight: 700, marginTop: 4 } }, currency, " ", fmt(monthExpenseTotal))
-    )))), loading && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#8A93A6", marginTop: 10, textAlign: "center" } }, t.loading), loadError && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#E64A3B", marginTop: 10, textAlign: "center" } }, t.loadErr), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 18 } }, ADSENSE_CLIENT && ADSENSE_SLOT ? /* @__PURE__ */ React.createElement(
+    )))), isViewingCurrentPeriod && daysRemaining != null && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "center", marginTop: 10 } }, /* @__PURE__ */ React.createElement("div", { className: "amount-num", style: { fontSize: 12, fontWeight: 700, color: theme.accent, background: "#fff", padding: "6px 14px", borderRadius: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.08)" } }, "\u23F3 ", formatDaysLeft(daysRemaining, language))), loading && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#8A93A6", marginTop: 10, textAlign: "center" } }, t.loading), loadError && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#E64A3B", marginTop: 10, textAlign: "center" } }, t.loadErr), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 18 } }, ADSENSE_CLIENT && ADSENSE_SLOT ? /* @__PURE__ */ React.createElement(
       "ins",
       {
         className: "adsbygoogle",
