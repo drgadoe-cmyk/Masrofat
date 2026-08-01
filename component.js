@@ -400,6 +400,14 @@ function addDaysToStr(str, delta) {
   const pad = (n) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
+function getCurrentPeriodMonth(startDay) {
+  const t = parseDateStr(todayStr());
+  if (t.day >= startDay) return { year: t.year, month: t.month };
+  let m = t.month - 1;
+  let y = t.year;
+  if (m < 0) { m = 11; y -= 1; }
+  return { year: y, month: m };
+}
 function formatPeriodLabel(range, language) {
   const start = parseDateStr(range.startStr);
   const lastDayStr = addDaysToStr(range.endStr, -1);
@@ -503,7 +511,12 @@ function HomeExpenses() {
           const s = JSON.parse(res3.value);
           if (s.language) setLanguage(s.language);
           if (s.themeColor) setThemeColor(s.themeColor);
-          if (s.monthStartDay) setMonthStartDay(s.monthStartDay);
+          if (s.monthStartDay) {
+            setMonthStartDay(s.monthStartDay);
+            const cur = getCurrentPeriodMonth(s.monthStartDay);
+            setViewMonth(cur.month);
+            setViewYear(cur.year);
+          }
           if (typeof s.notificationsEnabled === "boolean") setNotificationsEnabled(s.notificationsEnabled);
           if (s.currency) setCurrency(s.currency);
           if (s.appLockEnabled && s.appLockPattern) {
