@@ -1414,7 +1414,7 @@ function HomeExpenses() {
         /* @__PURE__ */ React.createElement(
           "button",
           {
-            onClick: () => setShowPaydayMonthsList(!showPaydayMonthsList),
+            onClick: () => setShowPaydayMonthsList(true),
             style: {
               display: "flex",
               alignItems: "center",
@@ -1428,65 +1428,8 @@ function HomeExpenses() {
             }
           },
           /* @__PURE__ */ React.createElement("span", { style: { fontSize: 12, color: "#9AA3B2", fontWeight: 600 } }, t.customizePayday),
-          /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: theme.accent, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 } }, showPaydayMonthsList ? t.hideMonthsList : t.showMonthsList, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 9 } }, showPaydayMonthsList ? "\u25B2" : "\u25BC"))
+          /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: theme.accent, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 } }, t.showMonthsList, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 12 } }, isRtl ? "\u2039" : "\u203A"))
         ),
-        showPaydayMonthsList && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#B0B6C2", marginBottom: 8 } }, t.customizePaydayHint), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, MONTH_NAMES[language].map((name, idx) => {
-          const y = now.getFullYear();
-          const resolvedDay = resolvePayday(y, idx, monthStartDay, paydayOverrides);
-          const hasOverride = paydayOverrides[`${y}-${idx}`] != null;
-          const isOpen = expandedPaydayMonth === idx;
-          return /* @__PURE__ */ React.createElement("div", { key: idx, style: { border: "1px solid #E4E7ED", borderRadius: 10, overflow: "hidden" } }, /* @__PURE__ */ React.createElement(
-            "button",
-            {
-              onClick: () => setExpandedPaydayMonth(isOpen ? null : idx),
-              style: {
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                width: "100%",
-                padding: "9px 12px",
-                background: isOpen ? "#F3F5F9" : "#fff",
-                border: "none",
-                cursor: "pointer"
-              }
-            },
-            /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, fontWeight: 600, color: "#3A3F4B" } }, name),
-            /* @__PURE__ */ React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 6 } }, /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontSize: 12, fontWeight: 700, color: hasOverride ? theme.accent : "#9AA3B2" } }, resolvedDay), !hasOverride && /* @__PURE__ */ React.createElement("span", { style: { fontSize: 9, color: "#B0B6C2", background: "#F3F5F9", padding: "2px 6px", borderRadius: 6 } }, t.defaultBadge), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: "#B0B6C2" } }, isOpen ? "\u25B2" : "\u25BC"))
-          ), isOpen && /* @__PURE__ */ React.createElement("div", { style: { padding: "10px 12px", background: "#FAFBFC", borderTop: "1px solid #E4E7ED" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } }, Array.from({ length: daysInMonthTop(y, idx) }, (_, i) => i + 1).map((day) => /* @__PURE__ */ React.createElement(
-            "button",
-            {
-              key: day,
-              onClick: () => {
-                setPaydayForPeriod(y, idx, day);
-                setExpandedPaydayMonth(null);
-              },
-              className: "amount-num",
-              style: {
-                width: 30,
-                height: 30,
-                borderRadius: 8,
-                cursor: "pointer",
-                border: day === resolvedDay ? "none" : "1px solid #E4E7ED",
-                background: day === resolvedDay ? theme.accent : "#fff",
-                color: day === resolvedDay ? "#fff" : "#3A3F4B",
-                fontSize: 12,
-                fontWeight: 700
-              }
-            },
-            day
-          ))), hasOverride && /* @__PURE__ */ React.createElement(
-            "button",
-            {
-              onClick: () => {
-                resetPaydayForPeriod(y, idx);
-                setExpandedPaydayMonth(null);
-              },
-              style: { marginTop: 8, fontSize: 11, color: theme.accent, background: "none", border: "none", cursor: "pointer", fontWeight: 600 }
-            },
-            "\u21BA ",
-            t.resetPayday
-          )));
-        }))),
         /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#9AA3B2", margin: "12px 0 6px", fontWeight: 600 } }, t.currency),
         /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } }, CURRENCIES.map((cur) => /* @__PURE__ */ React.createElement(
           "button",
@@ -1705,6 +1648,127 @@ function HomeExpenses() {
           },
           t.noReset
         )))
+      )
+    ), showPaydayMonthsList && /* @__PURE__ */ React.createElement(
+      "div",
+      {
+        onClick: () => {
+          setShowPaydayMonthsList(false);
+          setExpandedPaydayMonth(null);
+        },
+        style: {
+          position: "fixed",
+          inset: 0,
+          zIndex: 30,
+          background: "rgba(20,26,38,0.45)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 20
+        }
+      },
+      /* @__PURE__ */ React.createElement(
+        "div",
+        {
+          onClick: (e) => e.stopPropagation(),
+          style: {
+            position: "relative",
+            width: "100%",
+            maxWidth: 320,
+            maxHeight: "80vh",
+            overflowY: "auto",
+            background: "#fff",
+            borderRadius: 18,
+            boxShadow: "0 12px 32px rgba(0,0,0,0.25)",
+            padding: 18
+          }
+        },
+        /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => {
+              setShowPaydayMonthsList(false);
+              setExpandedPaydayMonth(null);
+            },
+            "aria-label": "close",
+            style: {
+              position: "absolute",
+              top: 10,
+              [isRtl ? "left" : "right"]: 10,
+              width: 28,
+              height: 28,
+              borderRadius: "50%",
+              border: "none",
+              background: "#F3F5F9",
+              color: "#8A93A6",
+              fontSize: 15,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }
+          },
+          "\u2715"
+        ),
+        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: "#3A3F4B", marginTop: 4 } }, t.customizePayday),
+        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#B0B6C2", margin: "4px 0 12px" } }, t.customizePaydayHint),
+        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, MONTH_NAMES[language].map((name, idx) => {
+          const y = now.getFullYear();
+          const resolvedDay = resolvePayday(y, idx, monthStartDay, paydayOverrides);
+          const hasOverride = paydayOverrides[`${y}-${idx}`] != null;
+          const isOpen = expandedPaydayMonth === idx;
+          return /* @__PURE__ */ React.createElement("div", { key: idx, style: { border: "1px solid #E4E7ED", borderRadius: 10, overflow: "hidden" } }, /* @__PURE__ */ React.createElement(
+            "button",
+            {
+              onClick: () => setExpandedPaydayMonth(isOpen ? null : idx),
+              style: {
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "100%",
+                padding: "9px 12px",
+                background: isOpen ? "#F3F5F9" : "#fff",
+                border: "none",
+                cursor: "pointer"
+              }
+            },
+            /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, fontWeight: 600, color: "#3A3F4B" } }, name),
+            /* @__PURE__ */ React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 6 } }, /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontSize: 12, fontWeight: 700, color: hasOverride ? theme.accent : "#9AA3B2" } }, resolvedDay), !hasOverride && /* @__PURE__ */ React.createElement("span", { style: { fontSize: 9, color: "#B0B6C2", background: "#F3F5F9", padding: "2px 6px", borderRadius: 6 } }, t.defaultBadge), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: "#B0B6C2" } }, isOpen ? "\u25B2" : "\u25BC"))
+          ), isOpen && /* @__PURE__ */ React.createElement("div", { style: { padding: "10px 12px", background: "#FAFBFC", borderTop: "1px solid #E4E7ED" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } }, Array.from({ length: daysInMonthTop(y, idx) }, (_, i) => i + 1).map((day) => /* @__PURE__ */ React.createElement(
+            "button",
+            {
+              key: day,
+              onClick: () => {
+                setPaydayForPeriod(y, idx, day);
+                setExpandedPaydayMonth(null);
+              },
+              className: "amount-num",
+              style: {
+                width: 30,
+                height: 30,
+                borderRadius: 8,
+                cursor: "pointer",
+                border: day === resolvedDay ? "none" : "1px solid #E4E7ED",
+                background: day === resolvedDay ? theme.accent : "#fff",
+                color: day === resolvedDay ? "#fff" : "#3A3F4B",
+                fontSize: 12,
+                fontWeight: 700
+              }
+            },
+            day
+          ))), hasOverride && /* @__PURE__ */ React.createElement(
+            "button",
+            {
+              onClick: () => {
+                resetPaydayForPeriod(y, idx);
+                setExpandedPaydayMonth(null);
+              },
+              style: { marginTop: 8, fontSize: 11, color: theme.accent, background: "none", border: "none", cursor: "pointer", fontWeight: 600 }
+            },
+            "\u21BA ",
+            t.resetPayday
+          )));
+        }))
       )
     ), /* @__PURE__ */ React.createElement("div", { style: {
       background: `linear-gradient(135deg, ${theme.from} 0%, ${theme.to} 100%)`,
