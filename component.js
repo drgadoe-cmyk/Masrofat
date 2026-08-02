@@ -241,11 +241,18 @@ const TXT = {
     detailAmount: "\u0645\u0642\u062F\u0627\u0631",
     detailDate: "\u062A\u0627\u0631\u064A\u062E",
     detailNote: "\u0645\u0644\u0627\u062D\u0638\u0629",
-    edit: "\u064A\u062D\u0631\u0631",
+    edit: "\u062A\u0639\u062F\u064A\u0644",
     saveChanges: "\u0627\u062D\u0641\u0638 \u0627\u0644\u062A\u0639\u062F\u064A\u0644",
     noNote: "\u0628\u062F\u0648\u0646 \u0645\u0644\u0627\u062D\u0638\u0629",
-    monthStart: "\u0628\u062F\u0627\u064A\u0629 \u0627\u0644\u0634\u0647\u0631 (\u064A\u0648\u0645)",
-    monthStartHint: "\u0627\u0644\u0631\u0635\u064A\u062F \u0627\u0644\u0645\u062A\u0628\u0642\u064A \u0628\u064A\u062A\u0631\u062D\u0651\u0644 \u062A\u0644\u0642\u0627\u0626\u064A \u0644\u0644\u0634\u0647\u0631 \u0627\u0644\u062C\u062F\u064A\u062F",
+    monthStart: "\u064A\u0648\u0645 \u0627\u0644\u0631\u0627\u062A\u0628 \u0627\u0644\u0627\u0641\u062A\u0631\u0627\u0636\u064A",
+    monthStartHint: "\u062A\u0642\u062F\u0631 \u062A\u0638\u0628\u0637 \u064A\u0648\u0645 \u0645\u062E\u062A\u0644\u0641 \u0644\u0623\u064A \u0634\u0647\u0631 \u0628\u0630\u0627\u062A\u0647 \u0645\u0646 \u0627\u0644\u0635\u0641\u062D\u0629 \u0627\u0644\u0631\u0626\u064A\u0633\u064A\u0629. \u0627\u0644\u0631\u0635\u064A\u062F \u0627\u0644\u0645\u062A\u0628\u0642\u064A \u0628\u064A\u062A\u0631\u062D\u0651\u0644 \u062A\u0644\u0642\u0627\u0626\u064A \u0644\u0644\u0641\u062A\u0631\u0629 \u0627\u0644\u062C\u062F\u064A\u062F\u0629",
+    paydayForPeriod: "\u064A\u0648\u0645 \u0627\u0644\u0631\u0627\u062A\u0628 \u0644\u0644\u0641\u062A\u0631\u0629 \u062F\u064A",
+    resetPayday: "\u0631\u062C\u0648\u0639 \u0644\u0644\u064A\u0648\u0645 \u0627\u0644\u0627\u0641\u062A\u0631\u0627\u0636\u064A",
+    customizePayday: "\u062A\u062E\u0635\u064A\u0635 \u064A\u0648\u0645 \u0627\u0644\u0631\u0627\u062A\u0628 \u0644\u0643\u0644 \u0634\u0647\u0631",
+    customizePaydayHint: "\u0627\u062E\u062A\u0627\u0631 \u0627\u0644\u0634\u0647\u0631 \u0648\u062D\u062F\u062F \u0627\u0644\u064A\u0648\u0645 \u0627\u0644\u0644\u064A \u0628\u064A\u0646\u0632\u0644 \u0641\u064A\u0647 \u0631\u0627\u062A\u0628\u0643",
+    defaultBadge: "\u0627\u0641\u062A\u0631\u0627\u0636\u064A",
+    showMonthsList: "\u0639\u0631\u0636 \u0627\u0644\u0634\u0647\u0648\u0631",
+    hideMonthsList: "\u0625\u062E\u0641\u0627\u0621 \u0627\u0644\u0634\u0647\u0648\u0631",
     notifications: "\u0627\u0644\u062A\u0646\u0628\u064A\u0647\u0627\u062A",
     appLock: "\u0642\u0641\u0644 \u0627\u0644\u062A\u0637\u0628\u064A\u0642",
     appLockHint: "\u0627\u0637\u0644\u0628 \u0646\u0645\u0637 \u0623\u0648 \u0628\u0635\u0645\u0629 \u0643\u0644 \u0645\u0627 \u062A\u0641\u062A\u062D \u0627\u0644\u062A\u0637\u0628\u064A\u0642",
@@ -276,7 +283,6 @@ const TXT = {
     factTopCategory: "\u0623\u0643\u062A\u0631 \u0641\u0626\u0629 \u0635\u0631\u0641 \u0639\u0644\u064A\u0647\u0627",
     factTxCount: "\u0639\u062F\u062F \u0627\u0644\u0645\u0639\u0627\u0645\u0644\u0627\u062A",
     daysLeftLast: "\u0627\u0644\u0646\u0647\u0627\u0631\u062F\u0629 \u0622\u062E\u0631 \u064A\u0648\u0645 \u0642\u0628\u0644 \u0627\u0644\u0631\u0627\u062A\u0628",
-    daysLeftOne: "\u064A\u0648\u0645 \u0648\u0627\u062D\u062F \u0645\u062A\u0628\u0642\u064A \u0644\u062D\u062F \u0627\u0644\u0631\u0627\u062A\u0628",
     daysLeftTwo: "\u064A\u0648\u0645\u064A\u0646 \u0645\u062A\u0628\u0642\u064A\u064A\u0646 \u0644\u062D\u062F \u0627\u0644\u0631\u0627\u062A\u0628",
     daysLeftFew: "\u0645\u062A\u0628\u0642\u064A {n} \u0623\u064A\u0627\u0645 \u0644\u062D\u062F \u0627\u0644\u0631\u0627\u062A\u0628",
     daysLeftMany: "\u0645\u062A\u0628\u0642\u064A {n} \u064A\u0648\u0645 \u0644\u062D\u062F \u0627\u0644\u0631\u0627\u062A\u0628"
@@ -332,8 +338,15 @@ const TXT = {
     edit: "Edit",
     saveChanges: "Save changes",
     noNote: "No note",
-    monthStart: "Month start day",
-    monthStartHint: "Remaining balance rolls over automatically",
+    monthStart: "Default payday",
+    monthStartHint: "You can set a different payday for any specific month from the Home screen. Remaining balance rolls over automatically",
+    paydayForPeriod: "Payday for this period",
+    resetPayday: "Reset to default",
+    customizePayday: "Customize payday per month",
+    customizePaydayHint: "Pick a month and choose the day your salary lands on",
+    defaultBadge: "Default",
+    showMonthsList: "Show months",
+    hideMonthsList: "Hide months",
     notifications: "Notifications",
     appLock: "App Lock",
     appLockHint: "Require a pattern or fingerprint every time you open the app",
@@ -364,8 +377,7 @@ const TXT = {
     factTopCategory: "Top spending category",
     factTxCount: "Transactions count",
     daysLeftLast: "Last day before payday",
-    daysLeftOne: "1 day left until payday",
-    daysLeftTwo: "1 day left until payday",
+    daysLeftTwo: "2 days left until payday",
     daysLeftFew: "{n} days left until payday",
     daysLeftMany: "{n} days left until payday"
   }
@@ -400,12 +412,24 @@ function addDaysToStr(str, delta) {
   const pad = (n) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
-function getCurrentPeriodMonth(startDay) {
+function daysInMonthTop(y, m) {
+  return new Date(y, m + 1, 0).getDate();
+}
+function resolvePayday(year, month, defaultDay, overrides) {
+  const key = `${year}-${month}`;
+  const raw = overrides && overrides[key] != null ? overrides[key] : defaultDay;
+  return Math.min(Math.max(1, raw), daysInMonthTop(year, month));
+}
+function getCurrentPeriodMonth(defaultDay, overrides) {
   const t = parseDateStr(todayStr());
-  if (t.day >= startDay) return { year: t.year, month: t.month };
+  const startDayThisMonth = resolvePayday(t.year, t.month, defaultDay, overrides);
+  if (t.day >= startDayThisMonth) return { year: t.year, month: t.month };
   let m = t.month - 1;
   let y = t.year;
-  if (m < 0) { m = 11; y -= 1; }
+  if (m < 0) {
+    m = 11;
+    y -= 1;
+  }
   return { year: y, month: m };
 }
 function formatPeriodLabel(range, language) {
@@ -441,6 +465,7 @@ function HomeExpenses() {
   const [themeColor, setThemeColor] = useState("orange");
   const [showMenu, setShowMenu] = useState(false);
   const [monthStartDay, setMonthStartDay] = useState(1);
+  const [paydayOverrides, setPaydayOverrides] = useState({});
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [currency, setCurrency] = useState("EGP");
   const [customCategories, setCustomCategories] = useState([]);
@@ -476,6 +501,9 @@ function HomeExpenses() {
   const [viewMonth, setViewMonth] = useState(now.getMonth());
   const [viewYear, setViewYear] = useState(now.getFullYear());
   const [confirmReset, setConfirmReset] = useState(false);
+  const [showPaydayEditor, setShowPaydayEditor] = useState(false);
+  const [expandedPaydayMonth, setExpandedPaydayMonth] = useState(null);
+  const [showPaydayMonthsList, setShowPaydayMonthsList] = useState(false);
   const t = TXT[language];
   const theme = THEME_COLORS[themeColor];
   const isRtl = language === "ar";
@@ -511,9 +539,12 @@ function HomeExpenses() {
           const s = JSON.parse(res3.value);
           if (s.language) setLanguage(s.language);
           if (s.themeColor) setThemeColor(s.themeColor);
-          if (s.monthStartDay) {
-            setMonthStartDay(s.monthStartDay);
-            const cur = getCurrentPeriodMonth(s.monthStartDay);
+          const effectiveDefaultDay = s.monthStartDay || monthStartDay;
+          const effectiveOverrides = s.paydayOverrides || {};
+          if (s.monthStartDay) setMonthStartDay(s.monthStartDay);
+          if (s.paydayOverrides) setPaydayOverrides(s.paydayOverrides);
+          if (s.monthStartDay || s.paydayOverrides) {
+            const cur = getCurrentPeriodMonth(effectiveDefaultDay, effectiveOverrides);
             setViewMonth(cur.month);
             setViewYear(cur.year);
           }
@@ -560,6 +591,7 @@ function HomeExpenses() {
       language,
       themeColor,
       monthStartDay,
+      paydayOverrides,
       notificationsEnabled,
       currency,
       appLockEnabled,
@@ -579,6 +611,20 @@ function HomeExpenses() {
     const clamped = Math.min(31, Math.max(1, day));
     setMonthStartDay(clamped);
     persistSettings({ ...currentSettingsBase(), monthStartDay: clamped });
+  }
+  function setPaydayForPeriod(year, month, day) {
+    const clamped = Math.min(31, Math.max(1, day));
+    const key = `${year}-${month}`;
+    const next = { ...paydayOverrides, [key]: clamped };
+    setPaydayOverrides(next);
+    persistSettings({ ...currentSettingsBase(), paydayOverrides: next });
+  }
+  function resetPaydayForPeriod(year, month) {
+    const key = `${year}-${month}`;
+    const next = { ...paydayOverrides };
+    delete next[key];
+    setPaydayOverrides(next);
+    persistSettings({ ...currentSettingsBase(), paydayOverrides: next });
   }
   function toggleNotifications() {
     const next = !notificationsEnabled;
@@ -826,24 +872,27 @@ function HomeExpenses() {
     };
     reader.readAsText(file);
   }
-  function getPeriodRange(year, month, startDay) {
+  function getPeriodRange(year, month, defaultDay, overrides) {
     const pad = (n) => String(n).padStart(2, "0");
-    const daysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
-    const clampedDay = (y, m) => Math.min(startDay, daysInMonth(y, m));
-    const startStr = `${year}-${pad(month + 1)}-${pad(clampedDay(year, month))}`;
+    const startStr = `${year}-${pad(month + 1)}-${pad(resolvePayday(year, month, defaultDay, overrides))}`;
     let endMonth = month + 1;
     let endYear = year;
     if (endMonth > 11) {
       endMonth = 0;
       endYear += 1;
     }
-    const endStr = `${endYear}-${pad(endMonth + 1)}-${pad(clampedDay(endYear, endMonth))}`;
+    const endStr = `${endYear}-${pad(endMonth + 1)}-${pad(resolvePayday(endYear, endMonth, defaultDay, overrides))}`;
     return { startStr, endStr };
   }
   const periodRange = useMemo(
-    () => getPeriodRange(viewYear, viewMonth, monthStartDay),
-    [viewMonth, viewYear, monthStartDay]
+    () => getPeriodRange(viewYear, viewMonth, monthStartDay, paydayOverrides),
+    [viewMonth, viewYear, monthStartDay, paydayOverrides]
   );
+  const viewedPeriodPayday = useMemo(
+    () => resolvePayday(viewYear, viewMonth, monthStartDay, paydayOverrides),
+    [viewYear, viewMonth, monthStartDay, paydayOverrides]
+  );
+  const viewedPeriodHasOverride = paydayOverrides[`${viewYear}-${viewMonth}`] != null;
   const allCategories = useMemo(() => [...CATEGORIES, ...customCategories], [customCategories]);
   const dynCatById = useMemo(() => Object.fromEntries(allCategories.map((c) => [c.id, c])), [allCategories]);
   function catLabel(c) {
@@ -883,11 +932,11 @@ function HomeExpenses() {
     const diff = Math.round((new Date(lastDay.year, lastDay.month, lastDay.day) - new Date(today.year, today.month, today.day)) / msPerDay);
     return diff + 1;
   }, [isViewingCurrentPeriod, periodRange]);
-  function formatDaysLeft(n, language) {
-    if (n <= 1) return TXT[language].daysLeftLast;
-    if (n === 2) return TXT[language].daysLeftTwo;
-    const key = language === "ar" && n >= 3 && n <= 10 ? "daysLeftFew" : "daysLeftMany";
-    return TXT[language][key].replace("{n}", n);
+  function formatDaysLeft(n, language2) {
+    if (n <= 1) return TXT[language2].daysLeftLast;
+    if (n === 2) return TXT[language2].daysLeftTwo;
+    const key = language2 === "ar" && n >= 3 && n <= 10 ? "daysLeftFew" : "daysLeftMany";
+    return TXT[language2][key].replace("{n}", n);
   }
   useEffect(() => {
     if (!loading && notificationsEnabled && balance <= 999) {
@@ -931,12 +980,12 @@ function HomeExpenses() {
     setPlannerYear(y);
   }
   const currentPeriodRange = useMemo(
-    () => getPeriodRange(now.getFullYear(), now.getMonth(), monthStartDay),
-    [monthStartDay]
+    () => getPeriodRange(now.getFullYear(), now.getMonth(), monthStartDay, paydayOverrides),
+    [monthStartDay, paydayOverrides]
   );
   const plannerPeriodRange = useMemo(
-    () => getPeriodRange(plannerYear, plannerMonth, monthStartDay),
-    [plannerYear, plannerMonth, monthStartDay]
+    () => getPeriodRange(plannerYear, plannerMonth, monthStartDay, paydayOverrides),
+    [plannerYear, plannerMonth, monthStartDay, paydayOverrides]
   );
   const plannerExpenses = useMemo(() => {
     if (plannerTab === "current") {
@@ -1016,8 +1065,8 @@ function HomeExpenses() {
     setIncomeYear(y);
   }
   const incomeSheetPeriodRange = useMemo(
-    () => getPeriodRange(incomeYear, incomeMonth, monthStartDay),
-    [incomeYear, incomeMonth, monthStartDay]
+    () => getPeriodRange(incomeYear, incomeMonth, monthStartDay, paydayOverrides),
+    [incomeYear, incomeMonth, monthStartDay, paydayOverrides]
   );
   const incomeSheetIncomes = useMemo(
     () => incomes.filter((x) => x.date >= incomeSheetPeriodRange.startStr && x.date < incomeSheetPeriodRange.endStr),
@@ -1044,6 +1093,7 @@ function HomeExpenses() {
     }
     setViewMonth(m);
     setViewYear(y);
+    setShowPaydayEditor(false);
   }
   return /* @__PURE__ */ React.createElement(
     "div",
@@ -1152,7 +1202,58 @@ function HomeExpenses() {
         style: { background: "#fff", border: "none", borderRadius: 10, width: 34, height: 34, fontSize: 16, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }
       },
       isRtl ? "\u2039" : "\u203A"
-    ), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center" } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 15 } }, MONTH_NAMES[language][viewMonth], " ", viewYear), monthStartDay !== 1 && /* @__PURE__ */ React.createElement("div", { className: "amount-num", style: { fontSize: 11, color: "#9AA3B2", marginTop: 1 } }, formatPeriodLabel(periodRange, language))), /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", position: "relative" } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 15 } }, MONTH_NAMES[language][viewMonth], " ", viewYear), monthStartDay !== 1 && /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        onClick: () => setShowPaydayEditor((v) => !v),
+        "aria-label": t.paydayForPeriod,
+        style: { background: "transparent", border: "none", cursor: "pointer", padding: 0, marginTop: 1, display: "flex", alignItems: "center", gap: 3, margin: "1px auto 0" }
+      },
+      /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontSize: 11, color: viewedPeriodHasOverride ? theme.accent : "#9AA3B2", fontWeight: viewedPeriodHasOverride ? 700 : 400 } }, formatPeriodLabel(periodRange, language)),
+      /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: "#B0B6C2" } }, "\u270E")
+    ), showPaydayEditor && /* @__PURE__ */ React.createElement(
+      "div",
+      {
+        style: {
+          position: "absolute",
+          top: "100%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          marginTop: 6,
+          background: "#fff",
+          borderRadius: 12,
+          padding: "10px 12px",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+          zIndex: 20,
+          width: 190
+        }
+      },
+      /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#9AA3B2", fontWeight: 600, marginBottom: 6, whiteSpace: "nowrap" } }, t.paydayForPeriod),
+      /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10 } }, /* @__PURE__ */ React.createElement(
+        "button",
+        {
+          onClick: () => setPaydayForPeriod(viewYear, viewMonth, viewedPeriodPayday - 1),
+          style: { width: 26, height: 26, borderRadius: 8, border: "1px solid #E4E7ED", background: "#fff", cursor: "pointer", fontSize: 15, lineHeight: 1 }
+        },
+        "\u2212"
+      ), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700, fontSize: 14, minWidth: 20, textAlign: "center" } }, viewedPeriodPayday), /* @__PURE__ */ React.createElement(
+        "button",
+        {
+          onClick: () => setPaydayForPeriod(viewYear, viewMonth, viewedPeriodPayday + 1),
+          style: { width: 26, height: 26, borderRadius: 8, border: "1px solid #E4E7ED", background: "#fff", cursor: "pointer", fontSize: 15, lineHeight: 1 }
+        },
+        "+"
+      )),
+      viewedPeriodHasOverride && /* @__PURE__ */ React.createElement(
+        "button",
+        {
+          onClick: () => resetPaydayForPeriod(viewYear, viewMonth),
+          style: { marginTop: 8, width: "100%", background: "transparent", border: "none", color: theme.accent, fontSize: 11, fontWeight: 700, cursor: "pointer" }
+        },
+        "\u21BA ",
+        t.resetPayday
+      )
+    )), /* @__PURE__ */ React.createElement(
       "button",
       {
         onClick: () => shiftMonth(-1),
@@ -1310,6 +1411,82 @@ function HomeExpenses() {
           "+"
         )),
         /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#B0B6C2", marginTop: 4 } }, t.monthStartHint),
+        /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => setShowPaydayMonthsList(!showPaydayMonthsList),
+            style: {
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+              margin: "14px 0 4px"
+            }
+          },
+          /* @__PURE__ */ React.createElement("span", { style: { fontSize: 12, color: "#9AA3B2", fontWeight: 600 } }, t.customizePayday),
+          /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: theme.accent, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 } }, showPaydayMonthsList ? t.hideMonthsList : t.showMonthsList, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 9 } }, showPaydayMonthsList ? "\u25B2" : "\u25BC"))
+        ),
+        showPaydayMonthsList && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#B0B6C2", marginBottom: 8 } }, t.customizePaydayHint), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, MONTH_NAMES[language].map((name, idx) => {
+          const y = now.getFullYear();
+          const resolvedDay = resolvePayday(y, idx, monthStartDay, paydayOverrides);
+          const hasOverride = paydayOverrides[`${y}-${idx}`] != null;
+          const isOpen = expandedPaydayMonth === idx;
+          return /* @__PURE__ */ React.createElement("div", { key: idx, style: { border: "1px solid #E4E7ED", borderRadius: 10, overflow: "hidden" } }, /* @__PURE__ */ React.createElement(
+            "button",
+            {
+              onClick: () => setExpandedPaydayMonth(isOpen ? null : idx),
+              style: {
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "100%",
+                padding: "9px 12px",
+                background: isOpen ? "#F3F5F9" : "#fff",
+                border: "none",
+                cursor: "pointer"
+              }
+            },
+            /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, fontWeight: 600, color: "#3A3F4B" } }, name),
+            /* @__PURE__ */ React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 6 } }, /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontSize: 12, fontWeight: 700, color: hasOverride ? theme.accent : "#9AA3B2" } }, resolvedDay), !hasOverride && /* @__PURE__ */ React.createElement("span", { style: { fontSize: 9, color: "#B0B6C2", background: "#F3F5F9", padding: "2px 6px", borderRadius: 6 } }, t.defaultBadge), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: "#B0B6C2" } }, isOpen ? "\u25B2" : "\u25BC"))
+          ), isOpen && /* @__PURE__ */ React.createElement("div", { style: { padding: "10px 12px", background: "#FAFBFC", borderTop: "1px solid #E4E7ED" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } }, Array.from({ length: daysInMonthTop(y, idx) }, (_, i) => i + 1).map((day) => /* @__PURE__ */ React.createElement(
+            "button",
+            {
+              key: day,
+              onClick: () => {
+                setPaydayForPeriod(y, idx, day);
+                setExpandedPaydayMonth(null);
+              },
+              className: "amount-num",
+              style: {
+                width: 30,
+                height: 30,
+                borderRadius: 8,
+                cursor: "pointer",
+                border: day === resolvedDay ? "none" : "1px solid #E4E7ED",
+                background: day === resolvedDay ? theme.accent : "#fff",
+                color: day === resolvedDay ? "#fff" : "#3A3F4B",
+                fontSize: 12,
+                fontWeight: 700
+              }
+            },
+            day
+          ))), hasOverride && /* @__PURE__ */ React.createElement(
+            "button",
+            {
+              onClick: () => {
+                resetPaydayForPeriod(y, idx);
+                setExpandedPaydayMonth(null);
+              },
+              style: { marginTop: 8, fontSize: 11, color: theme.accent, background: "none", border: "none", cursor: "pointer", fontWeight: 600 }
+            },
+            "\u21BA ",
+            t.resetPayday
+          )));
+        }))),
         /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#9AA3B2", margin: "12px 0 6px", fontWeight: 600 } }, t.currency),
         /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } }, CURRENCIES.map((cur) => /* @__PURE__ */ React.createElement(
           "button",
@@ -1615,7 +1792,15 @@ function HomeExpenses() {
       },
       /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-start" } }, /* @__PURE__ */ React.createElement("span", { style: { width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.35)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, color: "#fff", flexShrink: 0 } }, "\u2191"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 16, fontWeight: 600 } }, t.expense)),
       /* @__PURE__ */ React.createElement("div", { className: "amount-num", style: { fontSize: 17, fontWeight: 700, marginTop: 4 } }, currency, " ", fmt(monthExpenseTotal))
-    )))), isViewingCurrentPeriod && daysRemaining != null && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "center", marginTop: 10 } }, /* @__PURE__ */ React.createElement("div", { className: "amount-num", style: { fontSize: 12, fontWeight: 700, color: theme.accent, background: "#fff", padding: "6px 14px", borderRadius: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.08)" } }, "\u23F3 ", formatDaysLeft(daysRemaining, language))), loading && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#8A93A6", marginTop: 10, textAlign: "center" } }, t.loading), loadError && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#E64A3B", marginTop: 10, textAlign: "center" } }, t.loadErr), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 18 } }, ADSENSE_CLIENT && ADSENSE_SLOT ? /* @__PURE__ */ React.createElement(
+    )))), isViewingCurrentPeriod && daysRemaining != null && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "center", marginTop: 10 } }, /* @__PURE__ */ React.createElement(
+      "div",
+      {
+        className: "amount-num",
+        style: { fontSize: 12, fontWeight: 700, color: theme.accent, background: "#fff", padding: "6px 14px", borderRadius: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }
+      },
+      "\u23F3 ",
+      formatDaysLeft(daysRemaining, language)
+    )), loading && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#8A93A6", marginTop: 10, textAlign: "center" } }, t.loading), loadError && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#E64A3B", marginTop: 10, textAlign: "center" } }, t.loadErr), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 18 } }, ADSENSE_CLIENT && ADSENSE_SLOT ? /* @__PURE__ */ React.createElement(
       "ins",
       {
         className: "adsbygoogle",
