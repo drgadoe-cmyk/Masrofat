@@ -246,6 +246,7 @@ const TXT = {
     detailDate: "\u062A\u0627\u0631\u064A\u062E",
     detailNote: "\u0645\u0644\u0627\u062D\u0638\u0629",
     today: "\u0627\u0644\u064A\u0648\u0645",
+    backToBreakdown: "\u0631\u062C\u0648\u0639 \u0644\u0644\u062A\u0642\u0633\u064A\u0645",
     edit: "\u062A\u0639\u062F\u064A\u0644",
     saveChanges: "\u0627\u062D\u0641\u0638 \u0627\u0644\u062A\u0639\u062F\u064A\u0644",
     noNote: "\u0628\u062F\u0648\u0646 \u0645\u0644\u0627\u062D\u0638\u0629",
@@ -341,6 +342,7 @@ const TXT = {
     detailDate: "Date",
     detailNote: "Note",
     today: "Today",
+    backToBreakdown: "Back to breakdown",
     edit: "Edit",
     saveChanges: "Save changes",
     noNote: "No note",
@@ -964,17 +966,20 @@ function HomeExpenses() {
   const [plannerYearOnly, setPlannerYearOnly] = useState(now.getFullYear());
   const [customStart, setCustomStart] = useState(todayStr());
   const [customEnd, setCustomEnd] = useState(todayStr());
+  const [plannerCategoryFilter, setPlannerCategoryFilter] = useState(null);
   function openPlanner() {
     setPlannerMonth(viewMonth);
     setPlannerYear(viewYear);
     setPlannerTab("current");
     setPlannerMode("planner");
+    setPlannerCategoryFilter(null);
     setShowPlanner(true);
   }
   function openSchedules() {
     setPlannerYearOnly(now.getFullYear());
     setPlannerTab("years");
     setPlannerMode("schedules");
+    setPlannerCategoryFilter(null);
     setShowPlanner(true);
   }
   function shiftPlannerMonth(delta) {
@@ -991,17 +996,13 @@ function HomeExpenses() {
     setPlannerMonth(m);
     setPlannerYear(y);
   }
-  const currentPeriodRange = useMemo(
-    () => getPeriodRange(now.getFullYear(), now.getMonth(), monthStartDay, paydayOverrides),
-    [monthStartDay, paydayOverrides]
-  );
   const plannerPeriodRange = useMemo(
     () => getPeriodRange(plannerYear, plannerMonth, monthStartDay, paydayOverrides),
     [plannerYear, plannerMonth, monthStartDay, paydayOverrides]
   );
   const plannerExpenses = useMemo(() => {
     if (plannerTab === "current") {
-      return expenses.filter((x) => x.date >= currentPeriodRange.startStr && x.date < currentPeriodRange.endStr);
+      return expenses.filter((x) => x.date >= plannerPeriodRange.startStr && x.date < plannerPeriodRange.endStr);
     }
     if (plannerTab === "years") {
       return expenses.filter((x) => parseDateStr(x.date).year === plannerYearOnly);
@@ -1010,7 +1011,7 @@ function HomeExpenses() {
       return expenses.filter((x) => x.date >= customStart && x.date <= customEnd);
     }
     return expenses.filter((x) => x.date >= plannerPeriodRange.startStr && x.date < plannerPeriodRange.endStr);
-  }, [expenses, plannerTab, currentPeriodRange, plannerPeriodRange, plannerYearOnly, customStart, customEnd]);
+  }, [expenses, plannerTab, plannerPeriodRange, plannerYearOnly, customStart, customEnd]);
   const plannerExpenseTotal = useMemo(
     () => plannerExpenses.reduce((s, x) => s + x.amount, 0),
     [plannerExpenses]
@@ -1022,6 +1023,25 @@ function HomeExpenses() {
     }
     return allCategories.map((c) => ({ ...c, total: map[c.id] || 0 })).filter((c) => c.total > 0).sort((a, b) => b.total - a.total);
   }, [plannerExpenses, allCategories]);
+  const plannerCategoryFilteredGroups = useMemo(() => {
+    if (!plannerCategoryFilter) return [];
+    const groups = {};
+    for (const x of plannerExpenses) {
+      if (x.category !== plannerCategoryFilter) continue;
+      groups[x.date] = groups[x.date] || [];
+      groups[x.date].push(x);
+    }
+    return Object.entries(groups).sort((a, b) => a[0] < b[0] ? 1 : -1);
+  }, [plannerExpenses, plannerCategoryFilter]);
+  const plannerFilteredCategory = useMemo(() => {
+    if (!plannerCategoryFilter) return null;
+    return allCategories.find((c) => c.id === plannerCategoryFilter) || catById.other;
+  }, [plannerCategoryFilter, allCategories]);
+  const plannerFilteredCategoryTotal = useMemo(() => {
+    if (!plannerCategoryFilter) return 0;
+    const found = plannerCategoryBreakdown.find((c) => c.id === plannerCategoryFilter);
+    return found ? found.total : 0;
+  }, [plannerCategoryFilter, plannerCategoryBreakdown]);
   const financialFacts = useMemo(() => {
     const allTimeExpenseTotal = expenses.reduce((s, x) => s + x.amount, 0);
     const allTimeIncomeTotal = incomes.reduce((s, x) => s + x.amount, 0);
@@ -2089,7 +2109,10 @@ function HomeExpenses() {
     showPlanner && /* @__PURE__ */ React.createElement(
       "div",
       {
-        onClick: () => setShowPlanner(false),
+        onClick: () => {
+          setShowPlanner(false);
+          setPlannerCategoryFilter(null);
+        },
         style: { position: "fixed", inset: 0, background: "rgba(20,26,38,0.45)", display: "flex", alignItems: "flex-end", zIndex: 20 }
       },
       /* @__PURE__ */ React.createElement(
@@ -2101,7 +2124,10 @@ function HomeExpenses() {
         /* @__PURE__ */ React.createElement(
           "button",
           {
-            onClick: () => setShowPlanner(false),
+            onClick: () => {
+              setShowPlanner(false);
+              setPlannerCategoryFilter(null);
+            },
             "aria-label": "close",
             style: {
               position: "absolute",
@@ -2136,7 +2162,10 @@ function HomeExpenses() {
           "button",
           {
             key: tab.id,
-            onClick: () => setPlannerTab(tab.id),
+            onClick: () => {
+              setPlannerTab(tab.id);
+              setPlannerCategoryFilter(null);
+            },
             style: {
               flex: "0 0 auto",
               display: "flex",
@@ -2155,7 +2184,7 @@ function HomeExpenses() {
           /* @__PURE__ */ React.createElement("span", { style: { fontSize: 18 } }, tab.icon),
           /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, fontWeight: 700 } }, tab.label)
         ))),
-        plannerTab === "current" && /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", fontWeight: 600, fontSize: 14, marginBottom: 14 } }, MONTH_NAMES[language][now.getMonth()], " ", now.getFullYear()),
+        plannerTab === "current" && /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", fontWeight: 600, fontSize: 14, marginBottom: 14 } }, MONTH_NAMES[language][plannerMonth], " ", plannerYear),
         plannerTab === "past" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 14 } }, /* @__PURE__ */ React.createElement(
           "button",
           {
@@ -2207,7 +2236,55 @@ function HomeExpenses() {
             style: { padding: "6px 8px", borderRadius: 8, border: "1px solid #E4E7ED", fontSize: 12, color: "#4a463d" }
           }
         )),
-        plannerTab === "facts" ? /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAllExpense), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700, color: "#E64A3B" } }, currency, " ", fmt(financialFacts.allTimeExpenseTotal))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAllIncome), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700, color: "#2E9E5B" } }, currency, " ", fmt(financialFacts.allTimeIncomeTotal))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAvgMonthly), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700 } }, currency, " ", fmt(financialFacts.avgMonthly))), financialFacts.topCategory && /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factTopCategory), /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 700, display: "flex", alignItems: "center", gap: 6 } }, financialFacts.topCategory.icon, " ", catLabel(financialFacts.topCategory), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { color: "#8A93A6", fontWeight: 400 } }, "(", currency, " ", fmt(financialFacts.topCategoryTotal), ")"))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factTxCount), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700 } }, financialFacts.transactionsCount))) : plannerCategoryBreakdown.length === 0 ? /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", color: "#9AA3B2", fontSize: 14, padding: "20px 0" } }, t.noExpensesMonth) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { style: { width: "100%", height: 240 } }, /* @__PURE__ */ React.createElement(ResponsiveContainer, { width: "100%", height: "100%" }, /* @__PURE__ */ React.createElement(PieChart, null, /* @__PURE__ */ React.createElement(
+        plannerTab === "facts" ? /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAllExpense), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700, color: "#E64A3B" } }, currency, " ", fmt(financialFacts.allTimeExpenseTotal))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAllIncome), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700, color: "#2E9E5B" } }, currency, " ", fmt(financialFacts.allTimeIncomeTotal))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAvgMonthly), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700 } }, currency, " ", fmt(financialFacts.avgMonthly))), financialFacts.topCategory && /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factTopCategory), /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 700, display: "flex", alignItems: "center", gap: 6 } }, financialFacts.topCategory.icon, " ", catLabel(financialFacts.topCategory), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { color: "#8A93A6", fontWeight: 400 } }, "(", currency, " ", fmt(financialFacts.topCategoryTotal), ")"))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factTxCount), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700 } }, financialFacts.transactionsCount))) : plannerCategoryBreakdown.length === 0 ? /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", color: "#9AA3B2", fontSize: 14, padding: "20px 0" } }, t.noExpensesMonth) : plannerCategoryFilter ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => setPlannerCategoryFilter(null),
+            style: {
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+              marginBottom: 14,
+              color: theme.accent,
+              fontWeight: 600,
+              fontSize: 13
+            }
+          },
+          /* @__PURE__ */ React.createElement("span", { style: { fontSize: 15 } }, isRtl ? "\u203A" : "\u2039"),
+          t.backToBreakdown
+        ), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 16 } }, /* @__PURE__ */ React.createElement("div", { style: {
+          width: 40,
+          height: 40,
+          borderRadius: "50%",
+          flexShrink: 0,
+          background: `${plannerFilteredCategory.color}22`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        } }, /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c: plannerFilteredCategory, size: 20, color: plannerFilteredCategory.color })), /* @__PURE__ */ React.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 15, fontWeight: 700 } }, catLabel(plannerFilteredCategory))), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontSize: 15, fontWeight: 700, color: plannerFilteredCategory.color } }, currency, " ", fmt(plannerFilteredCategoryTotal))), plannerCategoryFilteredGroups.map(([day, items]) => {
+          const dayTotal = items.reduce((s, x) => s + x.amount, 0);
+          return /* @__PURE__ */ React.createElement("div", { key: day, style: { background: "#FAFBFC", border: "1px solid #F0F1F5", borderRadius: 14, marginBottom: 10, overflow: "hidden" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", borderBottom: "1px solid #F0F1F5" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#8A93A6" } }, formatTxDate(day, language)), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontSize: 13, fontWeight: 700, color: "#E64A3B" } }, currency, " ", fmt(dayTotal))), items.map((x, i) => /* @__PURE__ */ React.createElement(
+            "div",
+            {
+              key: x.id,
+              onClick: () => setViewingExpenseId(x.id),
+              style: {
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "10px 12px",
+                borderTop: i > 0 ? "1px solid #F5F6F9" : "none",
+                cursor: "pointer"
+              }
+            },
+            /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minWidth: 0, textAlign: isRtl ? "right" : "left" } }, x.note ? /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "#5A6072", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, x.note) : /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "#C7CCD6" } }, t.noNote)),
+            /* @__PURE__ */ React.createElement("div", { className: "amount-num", style: { fontSize: 13, fontWeight: 700, color: "#E64A3B" } }, "-", fmt(x.amount))
+          )));
+        })) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { style: { width: "100%", height: 240 } }, /* @__PURE__ */ React.createElement(ResponsiveContainer, { width: "100%", height: "100%" }, /* @__PURE__ */ React.createElement(PieChart, null, /* @__PURE__ */ React.createElement(
           Pie,
           {
             data: plannerCategoryBreakdown,
@@ -2215,10 +2292,22 @@ function HomeExpenses() {
             nameKey: language,
             innerRadius: 55,
             outerRadius: 90,
-            paddingAngle: 2
+            paddingAngle: 2,
+            onClick: (entry) => setPlannerCategoryFilter(entry.id),
+            style: { cursor: "pointer" }
           },
           plannerCategoryBreakdown.map((c) => /* @__PURE__ */ React.createElement(Cell, { key: c.id, fill: c.color }))
-        ), /* @__PURE__ */ React.createElement(Tooltip, { formatter: (v) => `${currency} ${fmt(v)}` })))), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 8 } }, plannerCategoryBreakdown.map((c) => /* @__PURE__ */ React.createElement("div", { key: c.id, style: { display: "flex", alignItems: "center", gap: 10, padding: "8px 4px" } }, /* @__PURE__ */ React.createElement("span", { style: { width: 12, height: 12, borderRadius: "50%", background: c.color, flexShrink: 0 } }), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, fontSize: 14, display: "flex", alignItems: "center", gap: 6 } }, /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c, size: 16, color: c.color }), " ", catLabel(c)), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontSize: 14, fontWeight: 700 } }, currency, " ", fmt(c.total), " ", /* @__PURE__ */ React.createElement("span", { style: { color: "#9AA3B2", fontWeight: 400 } }, "(", Math.round(c.total / plannerExpenseTotal * 100), "%)"))))))
+        ), /* @__PURE__ */ React.createElement(Tooltip, { formatter: (v) => `${currency} ${fmt(v)}` })))), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 8 } }, plannerCategoryBreakdown.map((c) => /* @__PURE__ */ React.createElement(
+          "div",
+          {
+            key: c.id,
+            onClick: () => setPlannerCategoryFilter(c.id),
+            style: { display: "flex", alignItems: "center", gap: 10, padding: "8px 4px", cursor: "pointer" }
+          },
+          /* @__PURE__ */ React.createElement("span", { style: { width: 12, height: 12, borderRadius: "50%", background: c.color, flexShrink: 0 } }),
+          /* @__PURE__ */ React.createElement("span", { style: { flex: 1, fontSize: 14, display: "flex", alignItems: "center", gap: 6 } }, /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c, size: 16, color: c.color }), " ", catLabel(c)),
+          /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontSize: 14, fontWeight: 700 } }, currency, " ", fmt(c.total), " ", /* @__PURE__ */ React.createElement("span", { style: { color: "#9AA3B2", fontWeight: 400 } }, "(", Math.round(c.total / plannerExpenseTotal * 100), "%)"))
+        ))))
       )
     ),
     showIncomeSheet && /* @__PURE__ */ React.createElement(
