@@ -241,6 +241,11 @@ const TXT = {
     newCategoryName: "\u0627\u0633\u0645 \u0627\u0644\u0641\u0626\u0629",
     newCategorySave: "\u0625\u0636\u0627\u0641\u0629",
     cancel: "\u0625\u0644\u063A\u0627\u0621",
+    save: "\u062D\u0641\u0638",
+    manageCategories: "\u062A\u0639\u062F\u064A\u0644 \u0627\u0644\u0641\u0626\u0627\u062A",
+    renameCategory: "\u062A\u0639\u062F\u064A\u0644 \u0627\u0644\u0627\u0633\u0645",
+    deleteCategory: "\u062D\u0630\u0641",
+    deleteCategoryConfirm: "\u0645\u062A\u0623\u0643\u062F \u0625\u0646\u0643 \u0639\u0627\u064A\u0632 \u062A\u062D\u0630\u0641 \u0627\u0644\u0641\u0626\u0629 \u062F\u064A\u061F \u0627\u0644\u0645\u0639\u0627\u0645\u0644\u0627\u062A \u0627\u0644\u0642\u062F\u064A\u0645\u0629 \u0647\u062A\u0641\u0636\u0644 \u0632\u064A \u0645\u0627 \u0647\u064A.",
     detailCategory: "\u0641\u0626\u0629",
     detailAmount: "\u0645\u0642\u062F\u0627\u0631",
     detailDate: "\u062A\u0627\u0631\u064A\u062E",
@@ -337,6 +342,11 @@ const TXT = {
     newCategoryName: "Category name",
     newCategorySave: "Add",
     cancel: "Cancel",
+    save: "Save",
+    manageCategories: "Edit categories",
+    renameCategory: "Rename",
+    deleteCategory: "Delete",
+    deleteCategoryConfirm: "Delete this category? Past transactions will keep showing it.",
     detailCategory: "Category",
     detailAmount: "Amount",
     detailDate: "Date",
@@ -483,6 +493,11 @@ function HomeExpenses() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [currency, setCurrency] = useState("EGP");
   const [customCategories, setCustomCategories] = useState([]);
+  const [categoryOverrides, setCategoryOverrides] = useState({});
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
+  const [editingCategoryId, setEditingCategoryId] = useState(null);
+  const [categoryNameDraft, setCategoryNameDraft] = useState("");
+  const [confirmDeleteCategoryId, setConfirmDeleteCategoryId] = useState(null);
   const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
   const [newCatName, setNewCatName] = useState("");
   const [newCatIcon, setNewCatIcon] = useState(CUSTOM_ICON_CHOICES[0]);
@@ -545,6 +560,11 @@ function HomeExpenses() {
       try {
         const res4 = await window.storage.get("customCategories", false);
         if (res4 && res4.value) setCustomCategories(JSON.parse(res4.value));
+      } catch (e) {
+      }
+      try {
+        const res4b = await window.storage.get("categoryOverrides", false);
+        if (res4b && res4b.value) setCategoryOverrides(JSON.parse(res4b.value));
       } catch (e) {
       }
       try {
@@ -779,6 +799,23 @@ function HomeExpenses() {
     setNewCatIcon(CUSTOM_ICON_CHOICES[0]);
     setShowNewCategoryForm(false);
   }
+  async function persistCategoryOverrides(next) {
+    setCategoryOverrides(next);
+    try {
+      await window.storage.set("categoryOverrides", JSON.stringify(next), false);
+    } catch (e) {
+    }
+  }
+  function renameCategory(id, name) {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    persistCategoryOverrides({ ...categoryOverrides, [id]: { ...categoryOverrides[id], name: trimmed } });
+    setEditingCategoryId(null);
+  }
+  function deleteCategory(id) {
+    persistCategoryOverrides({ ...categoryOverrides, [id]: { ...categoryOverrides[id], deleted: true } });
+    setConfirmDeleteCategoryId(null);
+  }
   function addEntry() {
     const val = parseAmount(amount);
     if (!val || val <= 0) {
@@ -910,8 +947,17 @@ function HomeExpenses() {
   const allCategories = useMemo(() => [...CATEGORIES, ...customCategories], [customCategories]);
   const dynCatById = useMemo(() => Object.fromEntries(allCategories.map((c) => [c.id, c])), [allCategories]);
   function catLabel(c) {
+    const override = categoryOverrides[c.id];
+    if (override && override.name) return override.name;
     return c.label || c[language] || "";
   }
+  const visibleCategories = useMemo(
+    () => allCategories.filter((c) => {
+      var _a;
+      return !((_a = categoryOverrides[c.id]) == null ? void 0 : _a.deleted);
+    }),
+    [allCategories, categoryOverrides]
+  );
   const monthExpenses = useMemo(() => {
     return expenses.filter((x) => x.date >= periodRange.startStr && x.date < periodRange.endStr);
   }, [expenses, periodRange]);
@@ -2610,7 +2656,7 @@ function HomeExpenses() {
           }
         )),
         amountError && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#E64A3B", marginBottom: 8 } }, t.amountErr),
-        addTab === "expense" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6, margin: "10px 0" } }, allCategories.map((c) => /* @__PURE__ */ React.createElement(
+        addTab === "expense" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6, margin: "10px 0" } }, visibleCategories.map((c) => /* @__PURE__ */ React.createElement(
           "button",
           {
             type: "button",
@@ -2650,6 +2696,26 @@ function HomeExpenses() {
           },
           /* @__PURE__ */ React.createElement("span", null, "\u2795"),
           /* @__PURE__ */ React.createElement("span", null, t.newCategory)
+        ), /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            type: "button",
+            onClick: () => setShowCategoryManager(true),
+            style: {
+              padding: "6px 10px",
+              borderRadius: 20,
+              border: "1px solid #E64A3B",
+              background: "#E64A3B",
+              fontSize: 13,
+              cursor: "pointer",
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              gap: 4
+            }
+          },
+          /* @__PURE__ */ React.createElement("span", null, "\u270F\uFE0F"),
+          /* @__PURE__ */ React.createElement("span", null, t.manageCategories)
         )),
         addTab === "expense" && showNewCategoryForm && /* @__PURE__ */ React.createElement("div", { style: { background: "#F8F9FB", borderRadius: 12, padding: 12, margin: "0 0 10px" } }, /* @__PURE__ */ React.createElement(
           "input",
@@ -2738,7 +2804,7 @@ function HomeExpenses() {
               padding: "13px",
               borderRadius: 12,
               border: "none",
-              background: addTab === "expense" ? "#E64A3B" : "#2E9E5B",
+              background: "#2E9E5B",
               color: "#fff",
               fontWeight: 700,
               fontSize: 15,
@@ -2748,6 +2814,124 @@ function HomeExpenses() {
           },
           saving ? t.saving : editingId ? t.saveChanges : addTab === "expense" ? t.addExpense : t.addIncome
         )
+      )
+    ),
+    showCategoryManager && /* @__PURE__ */ React.createElement(
+      "div",
+      {
+        onClick: () => {
+          setShowCategoryManager(false);
+          setEditingCategoryId(null);
+          setConfirmDeleteCategoryId(null);
+        },
+        style: { position: "fixed", inset: 0, zIndex: 45, background: "rgba(20,26,38,0.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }
+      },
+      /* @__PURE__ */ React.createElement(
+        "div",
+        {
+          onClick: (e) => e.stopPropagation(),
+          style: {
+            position: "relative",
+            width: "100%",
+            maxWidth: 340,
+            maxHeight: "80vh",
+            overflowY: "auto",
+            background: "#fff",
+            borderRadius: 18,
+            boxShadow: "0 12px 32px rgba(0,0,0,0.25)",
+            padding: 18
+          }
+        },
+        /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => {
+              setShowCategoryManager(false);
+              setEditingCategoryId(null);
+              setConfirmDeleteCategoryId(null);
+            },
+            "aria-label": "close",
+            style: {
+              position: "absolute",
+              top: 10,
+              [isRtl ? "left" : "right"]: 10,
+              width: 28,
+              height: 28,
+              borderRadius: "50%",
+              border: "none",
+              background: "#F3F5F9",
+              color: "#8A93A6",
+              fontSize: 15,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }
+          },
+          "\u2715"
+        ),
+        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: "#3A3F4B", marginTop: 4, marginBottom: 14 } }, t.manageCategories),
+        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, visibleCategories.map((c) => /* @__PURE__ */ React.createElement("div", { key: c.id, style: { border: "1px solid #E4E7ED", borderRadius: 12, padding: "8px 10px" } }, editingCategoryId === c.id ? /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c, size: 18, color: c.color }), /* @__PURE__ */ React.createElement(
+          "input",
+          {
+            type: "text",
+            value: categoryNameDraft,
+            onChange: (e) => setCategoryNameDraft(e.target.value),
+            onKeyDown: (e) => {
+              if (e.key === "Enter") renameCategory(c.id, categoryNameDraft);
+              if (e.key === "Escape") setEditingCategoryId(null);
+            },
+            autoFocus: true,
+            style: { flex: 1, minWidth: 0, padding: "6px 8px", borderRadius: 8, border: "1px solid #E4E7ED", fontSize: 13, boxSizing: "border-box" }
+          }
+        ), /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => renameCategory(c.id, categoryNameDraft),
+            style: { padding: "6px 10px", borderRadius: 8, border: "none", background: theme.accent, color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer" }
+          },
+          t.save
+        ), /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => setEditingCategoryId(null),
+            style: { padding: "6px 10px", borderRadius: 8, border: "1px solid #E4E7ED", background: "#fff", color: "#8A93A6", fontSize: 12, cursor: "pointer" }
+          },
+          t.cancel
+        )) : confirmDeleteCategoryId === c.id ? /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#5A6072", marginBottom: 8 } }, t.deleteCategoryConfirm), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => deleteCategory(c.id),
+            style: { flex: 1, padding: "7px", borderRadius: 8, border: "none", background: "#E64A3B", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer" }
+          },
+          t.deleteCategory
+        ), /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => setConfirmDeleteCategoryId(null),
+            style: { flex: 1, padding: "7px", borderRadius: 8, border: "1px solid #E4E7ED", background: "#fff", color: "#8A93A6", fontSize: 12, cursor: "pointer" }
+          },
+          t.cancel
+        ))) : /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c, size: 18, color: c.color }), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, fontSize: 13, fontWeight: 600, color: "#3A3F4B" } }, catLabel(c)), /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => {
+              setEditingCategoryId(c.id);
+              setCategoryNameDraft(catLabel(c));
+            },
+            "aria-label": "edit",
+            style: { width: 30, height: 30, borderRadius: 8, border: "1px solid #E4E7ED", background: "#fff", cursor: "pointer", fontSize: 13 }
+          },
+          "\u270F\uFE0F"
+        ), /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => setConfirmDeleteCategoryId(c.id),
+            "aria-label": "delete",
+            style: { width: 30, height: 30, borderRadius: 8, border: "1px solid #E4E7ED", background: "#fff", cursor: "pointer", fontSize: 13 }
+          },
+          "\u{1F5D1}\uFE0F"
+        )))))
       )
     )
   );
