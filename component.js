@@ -237,7 +237,7 @@ const TXT = {
     noIncomeMonth: "\u0644\u0633\u0647 \u0645\u0641\u064A\u0634 \u062F\u062E\u0644 \u0645\u0633\u062C\u0644 \u0641\u064A \u0627\u0644\u0634\u0647\u0631 \u062F\u0647.",
     lowBalanceWarning: "\u0627\u0644\u0631\u0635\u064A\u062F \u0627\u0644\u0645\u062A\u0628\u0642\u064A \u0623\u0642\u0644 \u0645\u0646 \u0661\u0660\u0660\u0660",
     currency: "\u0627\u0644\u0639\u0645\u0644\u0629",
-    newCategory: "\u0641\u0626\u0629 \u062C\u062F\u064A\u062F\u0629",
+    newCategory: "\u0625\u0636\u0627\u0641\u0629 \u0641\u0626\u0629",
     newCategoryName: "\u0627\u0633\u0645 \u0627\u0644\u0641\u0626\u0629",
     newCategorySave: "\u0625\u0636\u0627\u0641\u0629",
     cancel: "\u0625\u0644\u063A\u0627\u0621",
@@ -338,7 +338,7 @@ const TXT = {
     noIncomeMonth: "No income recorded this month yet.",
     lowBalanceWarning: "Your remaining balance is below 1000",
     currency: "Currency",
-    newCategory: "New category",
+    newCategory: "Add category",
     newCategoryName: "Category name",
     newCategorySave: "Add",
     cancel: "Cancel",
@@ -2656,6 +2656,27 @@ function HomeExpenses() {
           }
         )),
         amountError && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#E64A3B", marginBottom: 8 } }, t.amountErr),
+        /* @__PURE__ */ React.createElement(
+          "input",
+          {
+            type: "text",
+            placeholder: t.notePlaceholder,
+            value: note,
+            onChange: (e) => setNote(e.target.value),
+            onKeyDown: (e) => {
+              if (e.key === "Enter") addEntry();
+            },
+            style: {
+              width: "100%",
+              padding: "12px 14px",
+              borderRadius: 10,
+              border: "1px solid #E4E7ED",
+              fontSize: 14,
+              margin: "0 0 10px",
+              boxSizing: "border-box"
+            }
+          }
+        ),
         addTab === "expense" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6, margin: "10px 0" } }, visibleCategories.map((c) => /* @__PURE__ */ React.createElement(
           "button",
           {
@@ -2676,21 +2697,25 @@ function HomeExpenses() {
           },
           /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c, size: 16, color: c.color }),
           /* @__PURE__ */ React.createElement("span", null, catLabel(c))
-        )), /* @__PURE__ */ React.createElement(
+        ))),
+        addTab === "expense" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 10 } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             type: "button",
             onClick: () => setShowNewCategoryForm((v) => !v),
             style: {
-              padding: "6px 10px",
+              flex: 1,
+              padding: "8px 10px",
               borderRadius: 20,
-              border: "1.5px dashed #C7CCD6",
-              background: "#fff",
+              border: "1px solid #2E9E5B",
+              background: "#2E9E5B",
               fontSize: 13,
               cursor: "pointer",
-              color: "#8A93A6",
+              color: "#fff",
+              fontWeight: 700,
               display: "flex",
               alignItems: "center",
+              justifyContent: "center",
               gap: 4
             }
           },
@@ -2702,15 +2727,18 @@ function HomeExpenses() {
             type: "button",
             onClick: () => setShowCategoryManager(true),
             style: {
-              padding: "6px 10px",
+              flex: 1,
+              padding: "8px 10px",
               borderRadius: 20,
               border: "1px solid #E64A3B",
               background: "#E64A3B",
               fontSize: 13,
               cursor: "pointer",
               color: "#fff",
+              fontWeight: 700,
               display: "flex",
               alignItems: "center",
+              justifyContent: "center",
               gap: 4
             }
           },
@@ -2772,27 +2800,6 @@ function HomeExpenses() {
           },
           t.newCategorySave
         ))),
-        /* @__PURE__ */ React.createElement(
-          "input",
-          {
-            type: "text",
-            placeholder: t.notePlaceholder,
-            value: note,
-            onChange: (e) => setNote(e.target.value),
-            onKeyDown: (e) => {
-              if (e.key === "Enter") addEntry();
-            },
-            style: {
-              width: "100%",
-              padding: "12px 14px",
-              borderRadius: 10,
-              border: "1px solid #E4E7ED",
-              fontSize: 14,
-              margin: "10px 0",
-              boxSizing: "border-box"
-            }
-          }
-        ),
         /* @__PURE__ */ React.createElement(
           "button",
           {
