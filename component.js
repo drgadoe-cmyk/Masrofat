@@ -2698,7 +2698,28 @@ function HomeExpenses() {
           /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c, size: 16, color: c.color }),
           /* @__PURE__ */ React.createElement("span", null, catLabel(c))
         ))),
-        addTab === "expense" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 10 } }, /* @__PURE__ */ React.createElement(
+        /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            type: "button",
+            onClick: addEntry,
+            disabled: saving,
+            style: {
+              width: "100%",
+              padding: "13px",
+              borderRadius: 12,
+              border: "none",
+              background: "#2E9E5B",
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: 15,
+              cursor: "pointer",
+              opacity: saving ? 0.7 : 1
+            }
+          },
+          saving ? t.saving : editingId ? t.saveChanges : addTab === "expense" ? t.addExpense : t.addIncome
+        ),
+        addTab === "expense" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, margin: "10px 0" } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             type: "button",
@@ -2799,28 +2820,7 @@ function HomeExpenses() {
             style: { flex: 1, padding: "9px", borderRadius: 9, border: "none", background: theme.accent, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }
           },
           t.newCategorySave
-        ))),
-        /* @__PURE__ */ React.createElement(
-          "button",
-          {
-            type: "button",
-            onClick: addEntry,
-            disabled: saving,
-            style: {
-              width: "100%",
-              padding: "13px",
-              borderRadius: 12,
-              border: "none",
-              background: "#2E9E5B",
-              color: "#fff",
-              fontWeight: 700,
-              fontSize: 15,
-              cursor: "pointer",
-              opacity: saving ? 0.7 : 1
-            }
-          },
-          saving ? t.saving : editingId ? t.saveChanges : addTab === "expense" ? t.addExpense : t.addIncome
-        )
+        )))
       )
     ),
     showCategoryManager && /* @__PURE__ */ React.createElement(
