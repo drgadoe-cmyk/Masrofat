@@ -180,8 +180,6 @@ const WEEKDAY_NAMES = {
   ar: ["\u0627\u0644\u0623\u062D\u062F", "\u0627\u0644\u0627\u062B\u0646\u064A\u0646", "\u0627\u0644\u062B\u0644\u0627\u062B\u0627\u0621", "\u0627\u0644\u0623\u0631\u0628\u0639\u0627\u0621", "\u0627\u0644\u062E\u0645\u064A\u0633", "\u0627\u0644\u062C\u0645\u0639\u0629", "\u0627\u0644\u0633\u0628\u062A"],
   en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 };
-const ADSENSE_CLIENT = "";
-const ADSENSE_SLOT = "";
 const CURRENCIES = [
   { code: "EGP", ar: "\u062C\u0646\u064A\u0647 \u0645\u0635\u0631\u064A", en: "Egyptian Pound" },
   { code: "USD", ar: "\u062F\u0648\u0644\u0627\u0631 \u0623\u0645\u0631\u064A\u0643\u064A", en: "US Dollar" },
@@ -606,23 +604,6 @@ function HomeExpenses() {
       }
     })();
   }, []);
-  useEffect(() => {
-    if (!ADSENSE_CLIENT) return;
-    if (document.querySelector("script[data-adsbygoogle-loaded]")) return;
-    const script = document.createElement("script");
-    script.async = true;
-    script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`;
-    script.crossOrigin = "anonymous";
-    script.setAttribute("data-adsbygoogle-loaded", "true");
-    document.head.appendChild(script);
-  }, []);
-  useEffect(() => {
-    if (!ADSENSE_CLIENT || !ADSENSE_SLOT) return;
-    try {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (e) {
-    }
-  }, [language]);
   async function persistSettings(next) {
     try {
       await window.storage.set("settings", JSON.stringify(next), false);
@@ -2007,25 +1988,7 @@ function HomeExpenses() {
       },
       "\u23F3 ",
       formatDaysLeft(daysRemaining, language)
-    )), loading && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#8A93A6", marginTop: 10, textAlign: "center" } }, t.loading), loadError && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#E64A3B", marginTop: 10, textAlign: "center" } }, t.loadErr), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 18 } }, ADSENSE_CLIENT && ADSENSE_SLOT ? /* @__PURE__ */ React.createElement(
-      "ins",
-      {
-        className: "adsbygoogle",
-        style: { display: "block", minHeight: 60 },
-        "data-ad-client": ADSENSE_CLIENT,
-        "data-ad-slot": ADSENSE_SLOT,
-        "data-ad-format": "auto",
-        "data-full-width-responsive": "true"
-      }
-    ) : /* @__PURE__ */ React.createElement("div", { style: {
-      border: "1.5px dashed #D8DCE3",
-      borderRadius: 12,
-      padding: "14px",
-      textAlign: "center",
-      color: "#B0B6C2",
-      fontSize: 12,
-      background: "#FAFBFC"
-    } }, "\u0645\u0633\u0627\u062D\u0629 \u0625\u0639\u0644\u0627\u0646\u064A\u0629 \u2014 \u0647\u062A\u0638\u0647\u0631 \u0647\u0646\u0627 \u0628\u0639\u062F \u0636\u0628\u0637 \u062D\u0633\u0627\u0628 AdSense")), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 16 } }, /* @__PURE__ */ React.createElement("div", { style: {
+    )), loading && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#8A93A6", marginTop: 10, textAlign: "center" } }, t.loading), loadError && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#E64A3B", marginTop: 10, textAlign: "center" } }, t.loadErr), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 16 } }, /* @__PURE__ */ React.createElement("div", { style: {
       display: "flex",
       alignItems: "center",
       gap: 10,
