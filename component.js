@@ -245,6 +245,8 @@ const TXT = {
     manageCategories: "\u062A\u0639\u062F\u064A\u0644 \u0627\u0644\u0641\u0626\u0627\u062A",
     renameCategory: "\u062A\u0639\u062F\u064A\u0644 \u0627\u0644\u0627\u0633\u0645",
     deleteCategory: "\u062D\u0630\u0641",
+    calculator: "\u0627\u0644\u062D\u0627\u0633\u0628\u0629",
+    useAsAmount: "\u0627\u0633\u062A\u062E\u062F\u0627\u0645 \u0643\u0645\u0628\u0644\u063A",
     deleteCategoryConfirm: "\u0645\u062A\u0623\u0643\u062F \u0625\u0646\u0643 \u0639\u0627\u064A\u0632 \u062A\u062D\u0630\u0641 \u0627\u0644\u0641\u0626\u0629 \u062F\u064A\u061F \u0627\u0644\u0645\u0639\u0627\u0645\u0644\u0627\u062A \u0627\u0644\u0642\u062F\u064A\u0645\u0629 \u0647\u062A\u0641\u0636\u0644 \u0632\u064A \u0645\u0627 \u0647\u064A.",
     detailCategory: "\u0641\u0626\u0629",
     detailAmount: "\u0645\u0642\u062F\u0627\u0631",
@@ -346,6 +348,8 @@ const TXT = {
     manageCategories: "Edit categories",
     renameCategory: "Rename",
     deleteCategory: "Delete",
+    calculator: "Calculator",
+    useAsAmount: "Use as amount",
     deleteCategoryConfirm: "Delete this category? Past transactions will keep showing it.",
     detailCategory: "Category",
     detailAmount: "Amount",
@@ -522,6 +526,11 @@ function HomeExpenses() {
   const [showBalance, setShowBalance] = useState(true);
   const [addTab, setAddTab] = useState("expense");
   const [amount, setAmount] = useState("");
+  const [showCalculator, setShowCalculator] = useState(false);
+  const [calcDisplay, setCalcDisplay] = useState("0");
+  const [calcPrevValue, setCalcPrevValue] = useState(null);
+  const [calcOperator, setCalcOperator] = useState(null);
+  const [calcWaitingForNewValue, setCalcWaitingForNewValue] = useState(false);
   const [amountError, setAmountError] = useState(false);
   const [category, setCategory] = useState("food");
   const [note, setNote] = useState("");
@@ -798,6 +807,62 @@ function HomeExpenses() {
     setNewCatName("");
     setNewCatIcon(CUSTOM_ICON_CHOICES[0]);
     setShowNewCategoryForm(false);
+  }
+  function calcCompute(a, b, op) {
+    if (op === "+") return a + b;
+    if (op === "-") return a - b;
+    if (op === "*") return a * b;
+    if (op === "/") return b === 0 ? 0 : a / b;
+    return b;
+  }
+  function calcInputDigit(digit) {
+    if (calcWaitingForNewValue) {
+      setCalcDisplay(String(digit));
+      setCalcWaitingForNewValue(false);
+    } else {
+      setCalcDisplay(calcDisplay === "0" ? String(digit) : calcDisplay + digit);
+    }
+  }
+  function calcInputDecimal() {
+    if (calcWaitingForNewValue) {
+      setCalcDisplay("0.");
+      setCalcWaitingForNewValue(false);
+      return;
+    }
+    if (!calcDisplay.includes(".")) setCalcDisplay(calcDisplay + ".");
+  }
+  function calcClearAll() {
+    setCalcDisplay("0");
+    setCalcPrevValue(null);
+    setCalcOperator(null);
+    setCalcWaitingForNewValue(false);
+  }
+  function calcApplyOperator(nextOperator) {
+    const inputValue = parseFloat(calcDisplay);
+    if (calcPrevValue == null) {
+      setCalcPrevValue(inputValue);
+    } else if (calcOperator) {
+      const result = calcCompute(calcPrevValue, inputValue, calcOperator);
+      setCalcDisplay(String(result));
+      setCalcPrevValue(result);
+    }
+    setCalcWaitingForNewValue(true);
+    setCalcOperator(nextOperator);
+  }
+  function calcEquals() {
+    const inputValue = parseFloat(calcDisplay);
+    if (calcOperator && calcPrevValue != null) {
+      const result = calcCompute(calcPrevValue, inputValue, calcOperator);
+      setCalcDisplay(String(result));
+      setCalcPrevValue(null);
+      setCalcOperator(null);
+      setCalcWaitingForNewValue(true);
+    }
+  }
+  function calcUseAsAmount() {
+    setAmount(calcDisplay);
+    setShowCalculator(false);
+    calcClearAll();
   }
   async function persistCategoryOverrides(next) {
     setCategoryOverrides(next);
@@ -2765,6 +2830,29 @@ function HomeExpenses() {
           },
           /* @__PURE__ */ React.createElement("span", null, "\u270F\uFE0F"),
           /* @__PURE__ */ React.createElement("span", null, t.manageCategories)
+        ), /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            type: "button",
+            onClick: () => setShowCalculator(true),
+            style: {
+              flex: 1,
+              padding: "8px 10px",
+              borderRadius: 20,
+              border: "1px solid #F4791F",
+              background: "#F4791F",
+              fontSize: 13,
+              cursor: "pointer",
+              color: "#fff",
+              fontWeight: 700,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 4
+            }
+          },
+          /* @__PURE__ */ React.createElement("span", null, "\u{1F9EE}"),
+          /* @__PURE__ */ React.createElement("span", null, t.calculator)
         )),
         addTab === "expense" && showNewCategoryForm && /* @__PURE__ */ React.createElement("div", { style: { background: "#F8F9FB", borderRadius: 12, padding: 12, margin: "0 0 10px" } }, /* @__PURE__ */ React.createElement(
           "input",
@@ -2939,6 +3027,89 @@ function HomeExpenses() {
           },
           "\u{1F5D1}\uFE0F"
         )))))
+      )
+    ),
+    showCalculator && /* @__PURE__ */ React.createElement(
+      "div",
+      {
+        onClick: () => setShowCalculator(false),
+        style: { position: "fixed", inset: 0, zIndex: 45, background: "rgba(20,26,38,0.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }
+      },
+      /* @__PURE__ */ React.createElement(
+        "div",
+        {
+          onClick: (e) => e.stopPropagation(),
+          style: {
+            position: "relative",
+            width: "100%",
+            maxWidth: 300,
+            background: "#fff",
+            borderRadius: 18,
+            boxShadow: "0 12px 32px rgba(0,0,0,0.25)",
+            padding: 18
+          }
+        },
+        /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => setShowCalculator(false),
+            "aria-label": "close",
+            style: {
+              position: "absolute",
+              top: 10,
+              [isRtl ? "left" : "right"]: 10,
+              width: 28,
+              height: 28,
+              borderRadius: "50%",
+              border: "none",
+              background: "#F3F5F9",
+              color: "#8A93A6",
+              fontSize: 15,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }
+          },
+          "\u2715"
+        ),
+        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: "#3A3F4B", marginTop: 4, marginBottom: 14 } }, t.calculator),
+        /* @__PURE__ */ React.createElement(
+          "div",
+          {
+            className: "amount-num",
+            style: {
+              background: "#F8F9FB",
+              borderRadius: 12,
+              padding: "14px 12px",
+              marginBottom: 12,
+              fontSize: 28,
+              fontWeight: 700,
+              textAlign: "right",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              direction: "ltr"
+            }
+          },
+          calcDisplay
+        ),
+        /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 } }, /* @__PURE__ */ React.createElement("button", { onClick: calcClearAll, style: { padding: "14px 0", borderRadius: 10, border: "1px solid #E4E7ED", background: "#F8F9FB", color: "#E64A3B", fontWeight: 700, fontSize: 16, cursor: "pointer" } }, "C"), /* @__PURE__ */ React.createElement("button", { onClick: () => calcApplyOperator("/"), style: { padding: "14px 0", borderRadius: 10, border: "none", background: calcOperator === "/" ? theme.accent : "#F3F5F9", color: calcOperator === "/" ? "#fff" : "#3A3F4B", fontWeight: 700, fontSize: 18, cursor: "pointer" } }, "\xF7"), /* @__PURE__ */ React.createElement("button", { onClick: () => calcApplyOperator("*"), style: { padding: "14px 0", borderRadius: 10, border: "none", background: calcOperator === "*" ? theme.accent : "#F3F5F9", color: calcOperator === "*" ? "#fff" : "#3A3F4B", fontWeight: 700, fontSize: 18, cursor: "pointer" } }, "\xD7"), /* @__PURE__ */ React.createElement("button", { onClick: () => calcApplyOperator("-"), style: { padding: "14px 0", borderRadius: 10, border: "none", background: calcOperator === "-" ? theme.accent : "#F3F5F9", color: calcOperator === "-" ? "#fff" : "#3A3F4B", fontWeight: 700, fontSize: 18, cursor: "pointer" } }, "\u2212"), [7, 8, 9].map((d) => /* @__PURE__ */ React.createElement("button", { key: d, onClick: () => calcInputDigit(d), className: "amount-num", style: { padding: "14px 0", borderRadius: 10, border: "1px solid #E4E7ED", background: "#fff", color: "#3A3F4B", fontWeight: 600, fontSize: 17, cursor: "pointer" } }, d)), /* @__PURE__ */ React.createElement("button", { onClick: () => calcApplyOperator("+"), style: { padding: "14px 0", borderRadius: 10, border: "none", background: calcOperator === "+" ? theme.accent : "#F3F5F9", color: calcOperator === "+" ? "#fff" : "#3A3F4B", fontWeight: 700, fontSize: 18, cursor: "pointer" } }, "+"), [4, 5, 6].map((d) => /* @__PURE__ */ React.createElement("button", { key: d, onClick: () => calcInputDigit(d), className: "amount-num", style: { padding: "14px 0", borderRadius: 10, border: "1px solid #E4E7ED", background: "#fff", color: "#3A3F4B", fontWeight: 600, fontSize: 17, cursor: "pointer" } }, d)), /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: calcEquals,
+            style: { gridRow: "span 2", padding: "14px 0", borderRadius: 10, border: "none", background: "#F4791F", color: "#fff", fontWeight: 700, fontSize: 18, cursor: "pointer" }
+          },
+          "="
+        ), [1, 2, 3].map((d) => /* @__PURE__ */ React.createElement("button", { key: d, onClick: () => calcInputDigit(d), className: "amount-num", style: { padding: "14px 0", borderRadius: 10, border: "1px solid #E4E7ED", background: "#fff", color: "#3A3F4B", fontWeight: 600, fontSize: 17, cursor: "pointer" } }, d)), /* @__PURE__ */ React.createElement("button", { onClick: () => calcInputDigit(0), className: "amount-num", style: { gridColumn: "span 2", padding: "14px 0", borderRadius: 10, border: "1px solid #E4E7ED", background: "#fff", color: "#3A3F4B", fontWeight: 600, fontSize: 17, cursor: "pointer" } }, "0"), /* @__PURE__ */ React.createElement("button", { onClick: calcInputDecimal, className: "amount-num", style: { padding: "14px 0", borderRadius: 10, border: "1px solid #E4E7ED", background: "#fff", color: "#3A3F4B", fontWeight: 600, fontSize: 17, cursor: "pointer" } }, ".")),
+        /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: calcUseAsAmount,
+            style: { width: "100%", marginTop: 10, padding: "12px 0", borderRadius: 10, border: "none", background: "#2E9E5B", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }
+          },
+          t.useAsAmount
+        )
       )
     )
   );
