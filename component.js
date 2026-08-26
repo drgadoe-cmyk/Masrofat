@@ -985,6 +985,30 @@ function HomeExpenses() {
     () => getPeriodRange(viewYear, viewMonth, monthStartDay, paydayOverrides),
     [viewMonth, viewYear, monthStartDay, paydayOverrides]
   );
+  const displayPeriodLabel = useMemo(() => {
+    const start = parseDateStr(periodRange.startStr);
+    const endInclusive = parseDateStr(addDaysToStr(periodRange.endStr, -1));
+    const counts = {};
+    let cursor = new Date(start.year, start.month, start.day);
+    const endDate = new Date(endInclusive.year, endInclusive.month, endInclusive.day);
+    let guard = 0;
+    while (cursor <= endDate && guard < 62) {
+      const key = `${cursor.getFullYear()}-${cursor.getMonth()}`;
+      counts[key] = (counts[key] || 0) + 1;
+      cursor = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate() + 1);
+      guard++;
+    }
+    let bestKey = `${viewYear}-${viewMonth}`;
+    let bestCount = -1;
+    for (const [key, count] of Object.entries(counts)) {
+      if (count > bestCount) {
+        bestCount = count;
+        bestKey = key;
+      }
+    }
+    const [y, m] = bestKey.split("-").map(Number);
+    return { year: y, month: m };
+  }, [periodRange, viewYear, viewMonth]);
   const viewedPeriodPayday = useMemo(
     () => resolvePayday(viewYear, viewMonth, monthStartDay, paydayOverrides),
     [viewYear, viewMonth, monthStartDay, paydayOverrides]
@@ -1318,82 +1342,101 @@ function HomeExpenses() {
       },
       t.cancel
     )))),
-    /* @__PURE__ */ React.createElement("div", { style: { maxWidth: 460, margin: "0 auto", padding: "16px 16px 0", position: "relative" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement(
-      "button",
-      {
-        onClick: () => shiftMonth(1),
-        "aria-label": isRtl ? "\u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u062C\u0627\u064A" : "Next month",
-        style: { background: "#fff", border: "none", borderRadius: 10, width: 34, height: 34, fontSize: 16, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }
-      },
-      isRtl ? "\u2039" : "\u203A"
-    ), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", position: "relative" } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 15 } }, MONTH_NAMES[language][viewMonth], " ", viewYear), monthStartDay !== 1 && /* @__PURE__ */ React.createElement(
-      "button",
-      {
-        onClick: () => setShowPaydayEditor((v) => !v),
-        "aria-label": t.paydayForPeriod,
-        style: { background: "transparent", border: "none", cursor: "pointer", padding: 0, marginTop: 1, display: "flex", alignItems: "center", gap: 3, margin: "1px auto 0" }
-      },
-      /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontSize: 11, color: viewedPeriodHasOverride ? theme.accent : "#9AA3B2", fontWeight: viewedPeriodHasOverride ? 700 : 400 } }, formatPeriodLabel(periodRange, language)),
-      /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: "#B0B6C2" } }, "\u270E")
-    ), showPaydayEditor && /* @__PURE__ */ React.createElement(
+    /* @__PURE__ */ React.createElement("div", { style: { maxWidth: 460, margin: "0 auto", padding: "16px 16px 0", position: "relative" } }, /* @__PURE__ */ React.createElement(
       "div",
       {
         style: {
-          position: "absolute",
-          top: "100%",
-          left: "50%",
-          transform: "translateX(-50%)",
-          marginTop: 6,
-          background: "#fff",
-          borderRadius: 12,
-          padding: "10px 12px",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
-          zIndex: 20,
-          width: 190
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          position: "sticky",
+          top: 0,
+          zIndex: 15,
+          background: "#F3F5F9",
+          marginTop: -16,
+          paddingTop: 16,
+          paddingBottom: 8,
+          marginBottom: 8
         }
       },
-      /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#9AA3B2", fontWeight: 600, marginBottom: 6, whiteSpace: "nowrap" } }, t.paydayForPeriod),
-      /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10 } }, /* @__PURE__ */ React.createElement(
+      /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement(
         "button",
         {
-          onClick: () => setPaydayForPeriod(viewYear, viewMonth, viewedPeriodPayday - 1),
-          style: { width: 26, height: 26, borderRadius: 8, border: "1px solid #E4E7ED", background: "#fff", cursor: "pointer", fontSize: 15, lineHeight: 1 }
+          onClick: () => shiftMonth(1),
+          "aria-label": isRtl ? "\u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u062C\u0627\u064A" : "Next month",
+          style: { background: "#fff", border: "none", borderRadius: 10, width: 34, height: 34, fontSize: 16, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }
         },
-        "\u2212"
-      ), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700, fontSize: 14, minWidth: 20, textAlign: "center" } }, viewedPeriodPayday), /* @__PURE__ */ React.createElement(
+        isRtl ? "\u2039" : "\u203A"
+      ), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", position: "relative" } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 15 } }, MONTH_NAMES[language][displayPeriodLabel.month], " ", displayPeriodLabel.year), monthStartDay !== 1 && /* @__PURE__ */ React.createElement(
         "button",
         {
-          onClick: () => setPaydayForPeriod(viewYear, viewMonth, viewedPeriodPayday + 1),
-          style: { width: 26, height: 26, borderRadius: 8, border: "1px solid #E4E7ED", background: "#fff", cursor: "pointer", fontSize: 15, lineHeight: 1 }
+          onClick: () => setShowPaydayEditor((v) => !v),
+          "aria-label": t.paydayForPeriod,
+          style: { background: "transparent", border: "none", cursor: "pointer", padding: 0, marginTop: 1, display: "flex", alignItems: "center", gap: 3, margin: "1px auto 0" }
         },
-        "+"
+        /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontSize: 11, color: viewedPeriodHasOverride ? theme.accent : "#9AA3B2", fontWeight: viewedPeriodHasOverride ? 700 : 400 } }, formatPeriodLabel(periodRange, language)),
+        /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: "#B0B6C2" } }, "\u270E")
+      ), showPaydayEditor && /* @__PURE__ */ React.createElement(
+        "div",
+        {
+          style: {
+            position: "absolute",
+            top: "100%",
+            left: "50%",
+            transform: "translateX(-50%)",
+            marginTop: 6,
+            background: "#fff",
+            borderRadius: 12,
+            padding: "10px 12px",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+            zIndex: 20,
+            width: 190
+          }
+        },
+        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#9AA3B2", fontWeight: 600, marginBottom: 6, whiteSpace: "nowrap" } }, t.paydayForPeriod),
+        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10 } }, /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => setPaydayForPeriod(viewYear, viewMonth, viewedPeriodPayday - 1),
+            style: { width: 26, height: 26, borderRadius: 8, border: "1px solid #E4E7ED", background: "#fff", cursor: "pointer", fontSize: 15, lineHeight: 1 }
+          },
+          "\u2212"
+        ), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700, fontSize: 14, minWidth: 20, textAlign: "center" } }, viewedPeriodPayday), /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => setPaydayForPeriod(viewYear, viewMonth, viewedPeriodPayday + 1),
+            style: { width: 26, height: 26, borderRadius: 8, border: "1px solid #E4E7ED", background: "#fff", cursor: "pointer", fontSize: 15, lineHeight: 1 }
+          },
+          "+"
+        )),
+        viewedPeriodHasOverride && /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => resetPaydayForPeriod(viewYear, viewMonth),
+            style: { marginTop: 8, width: "100%", background: "transparent", border: "none", color: theme.accent, fontSize: 11, fontWeight: 700, cursor: "pointer" }
+          },
+          "\u21BA ",
+          t.resetPayday
+        )
+      )), /* @__PURE__ */ React.createElement(
+        "button",
+        {
+          onClick: () => shiftMonth(-1),
+          "aria-label": isRtl ? "\u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u0644\u064A \u0641\u0627\u062A" : "Previous month",
+          style: { background: "#fff", border: "none", borderRadius: 10, width: 34, height: 34, fontSize: 16, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }
+        },
+        isRtl ? "\u203A" : "\u2039"
       )),
-      viewedPeriodHasOverride && /* @__PURE__ */ React.createElement(
+      /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { width: 40, height: 40, borderRadius: 12, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" } }, "\u{1F451}"), /* @__PURE__ */ React.createElement(
         "button",
         {
-          onClick: () => resetPaydayForPeriod(viewYear, viewMonth),
-          style: { marginTop: 8, width: "100%", background: "transparent", border: "none", color: theme.accent, fontSize: 11, fontWeight: 700, cursor: "pointer" }
+          onClick: () => setShowMenu((v) => !v),
+          "aria-label": "settings",
+          style: { width: 40, height: 40, borderRadius: 12, background: "#fff", border: "none", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", cursor: "pointer", fontSize: 18 }
         },
-        "\u21BA ",
-        t.resetPayday
-      )
-    )), /* @__PURE__ */ React.createElement(
-      "button",
-      {
-        onClick: () => shiftMonth(-1),
-        "aria-label": isRtl ? "\u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u0644\u064A \u0641\u0627\u062A" : "Previous month",
-        style: { background: "#fff", border: "none", borderRadius: 10, width: 34, height: 34, fontSize: 16, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }
-      },
-      isRtl ? "\u203A" : "\u2039"
-    )), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { width: 40, height: 40, borderRadius: 12, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" } }, "\u{1F451}"), /* @__PURE__ */ React.createElement(
-      "button",
-      {
-        onClick: () => setShowMenu((v) => !v),
-        "aria-label": "settings",
-        style: { width: 40, height: 40, borderRadius: 12, background: "#fff", border: "none", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", cursor: "pointer", fontSize: 18 }
-      },
-      "\u2699\uFE0F"
-    ))), showLowBalanceWarning && /* @__PURE__ */ React.createElement(
+        "\u2699\uFE0F"
+      ))
+    ), showLowBalanceWarning && /* @__PURE__ */ React.createElement(
       "div",
       {
         style: {
