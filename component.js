@@ -233,7 +233,6 @@ const TXT = {
     restoreError: "\u0627\u0644\u0645\u0644\u0641 \u062F\u0647 \u0645\u0634 \u0646\u0633\u062E\u0629 \u0627\u062D\u062A\u064A\u0627\u0637\u064A\u0629 \u0635\u062D\u064A\u062D\u0629",
     incomeListTitle: "\u0627\u0644\u062F\u062E\u0644",
     noIncomeMonth: "\u0644\u0633\u0647 \u0645\u0641\u064A\u0634 \u062F\u062E\u0644 \u0645\u0633\u062C\u0644 \u0641\u064A \u0627\u0644\u0634\u0647\u0631 \u062F\u0647.",
-    lowBalanceWarning: "\u0627\u0644\u0631\u0635\u064A\u062F \u0627\u0644\u0645\u062A\u0628\u0642\u064A \u0623\u0642\u0644 \u0645\u0646 \u0661\u0660\u0660\u0660",
     currency: "\u0627\u0644\u0639\u0645\u0644\u0629",
     newCategory: "\u0625\u0636\u0627\u0641\u0629 \u0641\u0626\u0629",
     newCategoryName: "\u0627\u0633\u0645 \u0627\u0644\u0641\u0626\u0629",
@@ -337,7 +336,6 @@ const TXT = {
     restoreError: "This isn't a valid backup file",
     incomeListTitle: "Income",
     noIncomeMonth: "No income recorded this month yet.",
-    lowBalanceWarning: "Your remaining balance is below 1000",
     currency: "Currency",
     newCategory: "Add category",
     newCategoryName: "Category name",
@@ -522,7 +520,6 @@ function HomeExpenses() {
   const [viewingIncomeId, setViewingIncomeId] = useState(null);
   const [showPlanner, setShowPlanner] = useState(false);
   const [showIncomeSheet, setShowIncomeSheet] = useState(false);
-  const [showLowBalanceWarning, setShowLowBalanceWarning] = useState(false);
   const [showBalance, setShowBalance] = useState(true);
   const [addTab, setAddTab] = useState("expense");
   const [amount, setAmount] = useState("");
@@ -656,7 +653,6 @@ function HomeExpenses() {
   function toggleNotifications() {
     const next = !notificationsEnabled;
     setNotificationsEnabled(next);
-    if (!next) setShowLowBalanceWarning(false);
     persistSettings({ ...currentSettingsBase(), notificationsEnabled: next });
   }
   function changeCurrency(code) {
@@ -1078,13 +1074,7 @@ function HomeExpenses() {
     const key = language2 === "ar" && n >= 3 && n <= 10 ? "daysLeftFew" : "daysLeftMany";
     return TXT[language2][key].replace("{n}", n);
   }
-  useEffect(() => {
-    if (!loading && notificationsEnabled && balance <= 999) {
-      setShowLowBalanceWarning(true);
-      const timer = setTimeout(() => setShowLowBalanceWarning(false), 5e3);
-      return () => clearTimeout(timer);
-    }
-  }, [balance, notificationsEnabled, loading]);
+  const isLowBalance = !loading && notificationsEnabled && balance < 1e3;
   const [plannerMonth, setPlannerMonth] = useState(viewMonth);
   const [plannerYear, setPlannerYear] = useState(viewYear);
   const [plannerTab, setPlannerTab] = useState("current");
@@ -1269,13 +1259,6 @@ function HomeExpenses() {
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap');
         .amount-num { font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: plaintext; }
         button:focus-visible, input:focus-visible { outline: 2px solid ${theme.accent}; outline-offset: 2px; }
-        @keyframes lowBalancePop {
-          0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4) translateY(12px); }
-          12% { opacity: 1; transform: translate(-50%, -50%) scale(1.12) translateY(0); }
-          20% { transform: translate(-50%, -50%) scale(1) translateY(0); }
-          85% { opacity: 1; transform: translate(-50%, -50%) scale(1) translateY(0); }
-          100% { opacity: 0; transform: translate(-50%, -50%) scale(0.85) translateY(-6px); }
-        }
         @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
       `),
     isLocked && /* @__PURE__ */ React.createElement("div", { style: {
@@ -1446,44 +1429,6 @@ function HomeExpenses() {
         },
         "\u2699\uFE0F"
       ))
-    ), showLowBalanceWarning && /* @__PURE__ */ React.createElement(
-      "div",
-      {
-        style: {
-          position: "fixed",
-          top: "58%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          zIndex: 40,
-          pointerEvents: "none",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          animation: "lowBalancePop 5s ease forwards"
-        }
-      },
-      /* @__PURE__ */ React.createElement("div", { style: {
-        width: 92,
-        height: 92,
-        borderRadius: "50%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: 60,
-        filter: "drop-shadow(0 8px 14px rgba(0,0,0,0.35))"
-      } }, "\u{1F631}"),
-      /* @__PURE__ */ React.createElement("div", { style: {
-        marginTop: 10,
-        background: "#fff",
-        color: "#E64A3B",
-        fontWeight: 700,
-        fontSize: 13,
-        padding: "8px 14px",
-        borderRadius: 12,
-        boxShadow: "0 6px 16px rgba(0,0,0,0.18)",
-        maxWidth: 220,
-        textAlign: "center"
-      } }, t.lowBalanceWarning, " ", currency, "!")
     ), showMenu && /* @__PURE__ */ React.createElement(
       "div",
       {
@@ -1521,7 +1466,7 @@ function HomeExpenses() {
             style: {
               position: "absolute",
               top: 10,
-              [isRtl ? "left" : "right"]: 10,
+              [isRtl ? "right" : "left"]: 10,
               width: 28,
               height: 28,
               borderRadius: "50%",
@@ -1871,7 +1816,7 @@ function HomeExpenses() {
             style: {
               position: "absolute",
               top: 10,
-              [isRtl ? "left" : "right"]: 10,
+              [isRtl ? "right" : "left"]: 10,
               width: 28,
               height: 28,
               borderRadius: "50%",
@@ -1887,7 +1832,7 @@ function HomeExpenses() {
           },
           "\u2715"
         ),
-        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: "#3A3F4B", marginTop: 4 } }, t.customizePayday),
+        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: "#3A3F4B", marginTop: 4, paddingInlineStart: 36 } }, t.customizePayday),
         /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#B0B6C2", margin: "4px 0 12px" } }, t.customizePaydayHint),
         /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, MONTH_NAMES[language].map((name, idx) => {
           const y = now.getFullYear();
@@ -1998,7 +1943,22 @@ function HomeExpenses() {
         justifyContent: "center",
         boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
         padding: "0 8px"
-      } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, fontWeight: 600, color: "#fff", textAlign: "center" } }, t.totalBalance), /* @__PURE__ */ React.createElement("div", { className: "amount-num", style: { fontSize: 21, fontWeight: 800, color: "#fff", lineHeight: 1.2, marginTop: 4 } }, showBalance ? `${balance < 0 ? "-" : ""}${fmt(Math.abs(balance))} ${currency}` : "\u2605\u2605\u2605\u2605"))
+      } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 16, fontWeight: 600, color: "#fff", textAlign: "center" } }, t.totalBalance), /* @__PURE__ */ React.createElement(
+        "div",
+        {
+          className: "amount-num",
+          style: {
+            fontSize: 21,
+            fontWeight: 800,
+            lineHeight: 1.2,
+            marginTop: 4,
+            // Under 1000: red instead of white as a warning (kept white while the balance is hidden)
+            color: isLowBalance && showBalance ? "#D50000" : "#fff",
+            textShadow: isLowBalance && showBalance ? "0 0 3px rgba(255,255,255,0.95), 0 0 8px rgba(255,255,255,0.7)" : "none"
+          }
+        },
+        showBalance ? `${balance < 0 ? "-" : ""}${fmt(Math.abs(balance))} ${currency}` : "\u2605\u2605\u2605\u2605"
+      ))
     ), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, display: "flex", flexDirection: "column", gap: 10, justifyContent: "center", minWidth: 0 } }, /* @__PURE__ */ React.createElement(
       "button",
       {
@@ -2261,7 +2221,7 @@ function HomeExpenses() {
             style: {
               position: "absolute",
               top: 14,
-              [isRtl ? "left" : "right"]: 14,
+              [isRtl ? "right" : "left"]: 14,
               width: 28,
               height: 28,
               borderRadius: "50%",
@@ -2526,7 +2486,7 @@ function HomeExpenses() {
               style: {
                 position: "absolute",
                 top: 10,
-                [isRtl ? "left" : "right"]: 10,
+                [isRtl ? "right" : "left"]: 10,
                 width: 28,
                 height: 28,
                 borderRadius: "50%",
@@ -2598,7 +2558,7 @@ function HomeExpenses() {
               style: {
                 position: "absolute",
                 top: 10,
-                [isRtl ? "left" : "right"]: 10,
+                [isRtl ? "right" : "left"]: 10,
                 width: 28,
                 height: 28,
                 borderRadius: "50%",
@@ -3020,7 +2980,7 @@ function HomeExpenses() {
             style: {
               position: "absolute",
               top: 10,
-              [isRtl ? "left" : "right"]: 10,
+              [isRtl ? "right" : "left"]: 10,
               width: 28,
               height: 28,
               borderRadius: "50%",
@@ -3036,7 +2996,7 @@ function HomeExpenses() {
           },
           "\u2715"
         ),
-        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: "#3A3F4B", marginTop: 4, marginBottom: 14 } }, t.manageCategories),
+        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: "#3A3F4B", marginTop: 4, marginBottom: 14, paddingInlineStart: 36 } }, t.manageCategories),
         /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, visibleCategories.map((c) => /* @__PURE__ */ React.createElement("div", { key: c.id, style: { border: "1px solid #E4E7ED", borderRadius: 12, padding: "8px 10px" } }, editingCategoryId === c.id ? /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c, size: 18, color: c.color }), /* @__PURE__ */ React.createElement(
           "input",
           {
@@ -3128,7 +3088,7 @@ function HomeExpenses() {
             style: {
               position: "absolute",
               top: 10,
-              [isRtl ? "left" : "right"]: 10,
+              [isRtl ? "right" : "left"]: 10,
               width: 28,
               height: 28,
               borderRadius: "50%",
@@ -3144,7 +3104,7 @@ function HomeExpenses() {
           },
           "\u2715"
         ),
-        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: "#3A3F4B", marginTop: 4, marginBottom: 14 } }, t.calculator),
+        /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: "#3A3F4B", marginTop: 4, marginBottom: 14, paddingInlineStart: 36 } }, t.calculator),
         /* @__PURE__ */ React.createElement(
           "div",
           {
