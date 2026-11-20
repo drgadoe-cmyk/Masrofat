@@ -245,6 +245,7 @@ const TXT = {
     deleteCategory: "\u062D\u0630\u0641",
     calculator: "\u0627\u0644\u062D\u0627\u0633\u0628\u0629",
     useAsAmount: "\u0627\u0633\u062A\u062E\u062F\u0627\u0645 \u0643\u0645\u0628\u0644\u063A",
+    categoryErr: "\u0627\u062E\u062A\u0627\u0631 \u0627\u0644\u0641\u0626\u0629 \u0627\u0644\u0623\u0648\u0644",
     deleteCategoryConfirm: "\u0645\u062A\u0623\u0643\u062F \u0625\u0646\u0643 \u0639\u0627\u064A\u0632 \u062A\u062D\u0630\u0641 \u0627\u0644\u0641\u0626\u0629 \u062F\u064A\u061F \u0627\u0644\u0645\u0639\u0627\u0645\u0644\u0627\u062A \u0627\u0644\u0642\u062F\u064A\u0645\u0629 \u0647\u062A\u0641\u0636\u0644 \u0632\u064A \u0645\u0627 \u0647\u064A.",
     detailCategory: "\u0641\u0626\u0629",
     detailAmount: "\u0645\u0642\u062F\u0627\u0631",
@@ -348,6 +349,7 @@ const TXT = {
     deleteCategory: "Delete",
     calculator: "Calculator",
     useAsAmount: "Use as amount",
+    categoryErr: "Please choose a category",
     deleteCategoryConfirm: "Delete this category? Past transactions will keep showing it.",
     detailCategory: "Category",
     detailAmount: "Amount",
@@ -530,7 +532,8 @@ function HomeExpenses() {
   const [calcOperator, setCalcOperator] = useState(null);
   const [calcWaitingForNewValue, setCalcWaitingForNewValue] = useState(false);
   const [amountError, setAmountError] = useState(false);
-  const [category, setCategory] = useState("food");
+  const [category, setCategory] = useState(null);
+  const [categoryError, setCategoryError] = useState(false);
   const [note, setNote] = useState("");
   const [date, setDate] = useState(todayStr());
   const now = /* @__PURE__ */ new Date();
@@ -869,6 +872,11 @@ function HomeExpenses() {
       return;
     }
     setAmountError(false);
+    if (addTab === "expense" && !category) {
+      setCategoryError(true);
+      return;
+    }
+    setCategoryError(false);
     if (editingId) {
       if (addTab === "expense") {
         persistExpenses(expenses.map((x) => x.id === editingId ? { ...x, amount: val, category, note: note.trim(), date } : x));
@@ -892,6 +900,7 @@ function HomeExpenses() {
     }
     setAmount("");
     setNote("");
+    setCategory(null);
     setShowAddSheet(false);
   }
   function startEditExpense(x) {
@@ -899,6 +908,7 @@ function HomeExpenses() {
     setAddTab("expense");
     setAmount(String(x.amount));
     setCategory(x.category);
+    setCategoryError(false);
     setNote(x.note || "");
     setDate(x.date);
     setAmountError(false);
@@ -2196,6 +2206,8 @@ function HomeExpenses() {
           setAmount("");
           setNote("");
           setDate(todayStr());
+          setCategory(null);
+          setCategoryError(false);
           setShowAddSheet(true);
           setAddTab("expense");
           setAmountError(false);
@@ -2644,6 +2656,7 @@ function HomeExpenses() {
         {
           onClick: (e) => e.stopPropagation(),
           style: {
+            position: "relative",
             width: "100%",
             maxWidth: 460,
             margin: "0 auto",
@@ -2654,6 +2667,32 @@ function HomeExpenses() {
             overflowY: "auto"
           }
         },
+        /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            type: "button",
+            onClick: closeAddSheet,
+            "aria-label": "close",
+            style: {
+              position: "absolute",
+              top: 10,
+              [isRtl ? "right" : "left"]: 14,
+              width: 28,
+              height: 28,
+              borderRadius: "50%",
+              border: "none",
+              background: "#F3F5F9",
+              color: "#8A93A6",
+              fontSize: 15,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0
+            }
+          },
+          "\u2715"
+        ),
         /* @__PURE__ */ React.createElement("div", { style: { width: 40, height: 4, background: "#E4E7ED", borderRadius: 2, margin: "0 auto 16px" } }),
         /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 16, background: "#F3F5F9", borderRadius: 12, padding: 4 } }, /* @__PURE__ */ React.createElement(
           "button",
@@ -2748,27 +2787,53 @@ function HomeExpenses() {
             }
           }
         ),
-        addTab === "expense" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6, margin: "10px 0" } }, visibleCategories.map((c) => /* @__PURE__ */ React.createElement(
-          "button",
+        addTab === "expense" && /* @__PURE__ */ React.createElement(
+          "div",
           {
-            type: "button",
-            key: c.id,
-            onClick: () => setCategory(c.id),
             style: {
-              padding: "6px 10px",
-              borderRadius: 20,
-              border: category === c.id ? `2px solid ${c.color}` : "1px solid #E4E7ED",
-              background: category === c.id ? `${c.color}1a` : "#fff",
-              fontSize: 13,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 4
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 8,
+              margin: "10px 0",
+              borderRadius: 14,
+              outline: categoryError ? "1.5px solid #E64A3B" : "none",
+              outlineOffset: 4
             }
           },
-          /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c, size: 16, color: c.color }),
-          /* @__PURE__ */ React.createElement("span", null, catLabel(c))
-        ))),
+          visibleCategories.map((c) => /* @__PURE__ */ React.createElement(
+            "button",
+            {
+              type: "button",
+              key: c.id,
+              onClick: () => {
+                setCategory(c.id);
+                setCategoryError(false);
+              },
+              style: {
+                minHeight: 64,
+                padding: "8px 6px",
+                borderRadius: 14,
+                boxSizing: "border-box",
+                border: category === c.id ? `2px solid ${c.color}` : "1px solid #E4E7ED",
+                background: category === c.id ? `${c.color}1a` : "#fff",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 4,
+                textAlign: "center",
+                lineHeight: 1.25,
+                minWidth: 0
+              }
+            },
+            /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c, size: 20, color: c.color }),
+            /* @__PURE__ */ React.createElement("span", { style: { maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, catLabel(c))
+          ))
+        ),
+        addTab === "expense" && categoryError && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#E64A3B", marginBottom: 8 } }, t.categoryErr),
         /* @__PURE__ */ React.createElement(
           "button",
           {
