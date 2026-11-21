@@ -69,9 +69,80 @@ function CategoryIcon({ id, size = 18, color = "currentColor", strokeWidth = 1.7
   return /* @__PURE__ */ React.createElement("svg", { width: size, height: size, viewBox: "0 0 24 24", ...p, style: { flexShrink: 0 } }, body);
 }
 function CatIconOrEmoji({ c, size, color }) {
+  if (typeof c.icon === "string" && c.icon.startsWith("img:")) {
+    const px = Math.round(size * 1.2);
+    return /* @__PURE__ */ React.createElement(
+      "img",
+      {
+        src: `icons/${c.icon.slice(4)}.png`,
+        alt: "",
+        width: px,
+        height: px,
+        draggable: false,
+        style: { width: px, height: px, objectFit: "contain", display: "block", flexShrink: 0 }
+      }
+    );
+  }
   return /* @__PURE__ */ React.createElement("span", { style: { fontSize: size } }, c.icon);
 }
 const CUSTOM_ICON_CHOICES = ["\u{1F37D}\uFE0F", "\u{1F697}", "\u{1F3E0}", "\u{1F6D2}", "\u{1F357}", "\u{1F48A}", "\u{1F389}", "\u{1F4DA}", "\u{1F6CD}\uFE0F", "\u25A6", "\u26FD", "\u{1FA7A}", "\u{1F354}", "\u{1F58A}\uFE0F", "\u{1FA99}"];
+const PICTURE_ICON_CHOICES = Array.from({ length: 75 }, (_, i) => `img:ic${String(i + 1).padStart(2, "0")}`);
+function IconPickerGrid({ value, onChange, accent, moreLabel, extra, gridMaxHeight }) {
+  const emojis = extra && !CUSTOM_ICON_CHOICES.includes(extra) && !String(extra).startsWith("img:") ? [extra, ...CUSTOM_ICON_CHOICES] : CUSTOM_ICON_CHOICES;
+  return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 } }, emojis.map((icon) => /* @__PURE__ */ React.createElement(
+    "button",
+    {
+      type: "button",
+      key: icon,
+      onClick: () => onChange(icon),
+      style: {
+        width: 34,
+        height: 34,
+        borderRadius: 9,
+        fontSize: 16,
+        cursor: "pointer",
+        border: value === icon ? `2px solid ${accent}` : "1px solid #E4E7ED",
+        background: value === icon ? `${accent}1a` : "#fff"
+      }
+    },
+    icon
+  ))), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#8A93A6", fontWeight: 600, margin: "0 0 6px" } }, moreLabel), /* @__PURE__ */ React.createElement(
+    "div",
+    {
+      style: {
+        display: "grid",
+        gridTemplateColumns: "repeat(6, 1fr)",
+        gap: 6,
+        maxHeight: gridMaxHeight || 178,
+        overflowY: "auto",
+        overscrollBehavior: "contain",
+        padding: 2,
+        marginBottom: 10
+      }
+    },
+    PICTURE_ICON_CHOICES.map((icon) => /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        type: "button",
+        key: icon,
+        onClick: () => onChange(icon),
+        "aria-label": icon,
+        style: {
+          aspectRatio: "1 / 1",
+          borderRadius: 9,
+          cursor: "pointer",
+          padding: 4,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          border: value === icon ? `2px solid ${accent}` : "1px solid #E4E7ED",
+          background: value === icon ? `${accent}1a` : "#fff"
+        }
+      },
+      /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c: { icon }, size: 22 })
+    ))
+  ));
+}
 function PatternPad({ onComplete, accentColor, errorColor, errorPulse }) {
   const [path, setPath] = useState([]);
   const [pos, setPos] = useState(null);
@@ -245,6 +316,7 @@ const TXT = {
     calculator: "\u0627\u0644\u062D\u0627\u0633\u0628\u0629",
     useAsAmount: "\u0627\u0633\u062A\u062E\u062F\u0627\u0645 \u0643\u0645\u0628\u0644\u063A",
     categoryErr: "\u0627\u062E\u062A\u0627\u0631 \u0627\u0644\u0641\u0626\u0629 \u0627\u0644\u0623\u0648\u0644",
+    moreIcons: "\u0623\u064A\u0642\u0648\u0646\u0627\u062A \u0623\u062E\u0631\u0649",
     deleteCategoryConfirm: "\u0645\u062A\u0623\u0643\u062F \u0625\u0646\u0643 \u0639\u0627\u064A\u0632 \u062A\u062D\u0630\u0641 \u0627\u0644\u0641\u0626\u0629 \u062F\u064A\u061F \u0627\u0644\u0645\u0639\u0627\u0645\u0644\u0627\u062A \u0627\u0644\u0642\u062F\u064A\u0645\u0629 \u0647\u062A\u0641\u0636\u0644 \u0632\u064A \u0645\u0627 \u0647\u064A.",
     detailCategory: "\u0641\u0626\u0629",
     detailAmount: "\u0645\u0642\u062F\u0627\u0631",
@@ -348,6 +420,7 @@ const TXT = {
     calculator: "Calculator",
     useAsAmount: "Use as amount",
     categoryErr: "Please choose a category",
+    moreIcons: "More icons",
     deleteCategoryConfirm: "Delete this category? Past transactions will keep showing it.",
     detailCategory: "Category",
     detailAmount: "Amount",
@@ -499,10 +572,13 @@ function HomeExpenses() {
   const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [editingCategoryId, setEditingCategoryId] = useState(null);
   const [categoryNameDraft, setCategoryNameDraft] = useState("");
+  const [categoryIconDraft, setCategoryIconDraft] = useState("");
+  const [categoryOrder, setCategoryOrder] = useState([]);
   const [confirmDeleteCategoryId, setConfirmDeleteCategoryId] = useState(null);
   const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
   const [newCatName, setNewCatName] = useState("");
   const [newCatIcon, setNewCatIcon] = useState(CUSTOM_ICON_CHOICES[0]);
+  const newCatFormRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [appLockEnabled, setAppLockEnabled] = useState(false);
   const [appLockPattern, setAppLockPattern] = useState(null);
@@ -572,6 +648,11 @@ function HomeExpenses() {
       try {
         const res4b = await window.storage.get("categoryOverrides", false);
         if (res4b && res4b.value) setCategoryOverrides(JSON.parse(res4b.value));
+      } catch (e) {
+      }
+      try {
+        const res4c = await window.storage.get("categoryOrder", false);
+        if (res4c && res4c.value) setCategoryOrder(JSON.parse(res4c.value));
       } catch (e) {
       }
       try {
@@ -851,11 +932,30 @@ function HomeExpenses() {
     } catch (e) {
     }
   }
-  function renameCategory(id, name) {
+  function saveCategoryEdit(id, name, icon) {
+    var _a;
     const trimmed = name.trim();
     if (!trimmed) return;
-    persistCategoryOverrides({ ...categoryOverrides, [id]: { ...categoryOverrides[id], name: trimmed } });
+    persistCategoryOverrides({
+      ...categoryOverrides,
+      [id]: { ...categoryOverrides[id], name: trimmed, icon: icon || ((_a = categoryOverrides[id]) == null ? void 0 : _a.icon) }
+    });
     setEditingCategoryId(null);
+  }
+  async function persistCategoryOrder(next) {
+    setCategoryOrder(next);
+    try {
+      await window.storage.set("categoryOrder", JSON.stringify(next), false);
+    } catch (e) {
+    }
+  }
+  function moveCategory(id, dir) {
+    const ids = visibleCategories.map((c) => c.id);
+    const i = ids.indexOf(id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= ids.length) return;
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+    persistCategoryOrder(ids);
   }
   function deleteCategory(id) {
     persistCategoryOverrides({ ...categoryOverrides, [id]: { ...categoryOverrides[id], deleted: true } });
@@ -940,7 +1040,10 @@ function HomeExpenses() {
     const payload = {
       exportedAt: (/* @__PURE__ */ new Date()).toISOString(),
       expenses,
-      incomes
+      incomes,
+      customCategories,
+      categoryOverrides,
+      categoryOrder
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -967,6 +1070,15 @@ function HomeExpenses() {
         const restoredIncomes = Array.isArray(data.incomes) ? data.incomes : [];
         persistExpenses(restoredExpenses);
         persistIncomes(restoredIncomes);
+        if (Array.isArray(data.customCategories)) {
+          persistCustomCategories(data.customCategories.filter((c) => c && typeof c.id === "string"));
+        }
+        if (data.categoryOverrides && typeof data.categoryOverrides === "object" && !Array.isArray(data.categoryOverrides)) {
+          persistCategoryOverrides(data.categoryOverrides);
+        }
+        if (Array.isArray(data.categoryOrder)) {
+          persistCategoryOrder(data.categoryOrder.filter((id) => typeof id === "string"));
+        }
         setRestoreMessage(t.restoreSuccess);
       } catch (err) {
         setRestoreMessage(t.restoreError);
@@ -1020,20 +1132,29 @@ function HomeExpenses() {
     [viewYear, viewMonth, monthStartDay, paydayOverrides]
   );
   const viewedPeriodHasOverride = paydayOverrides[`${viewYear}-${viewMonth}`] != null;
-  const allCategories = useMemo(() => [...CATEGORIES, ...customCategories], [customCategories]);
+  const allCategories = useMemo(
+    () => [...CATEGORIES, ...customCategories].map((c) => {
+      var _a;
+      return ((_a = categoryOverrides[c.id]) == null ? void 0 : _a.icon) ? { ...c, icon: categoryOverrides[c.id].icon } : c;
+    }),
+    [customCategories, categoryOverrides]
+  );
   const dynCatById = useMemo(() => Object.fromEntries(allCategories.map((c) => [c.id, c])), [allCategories]);
   function catLabel(c) {
     const override = categoryOverrides[c.id];
     if (override && override.name) return override.name;
     return c.label || c[language] || "";
   }
-  const visibleCategories = useMemo(
-    () => allCategories.filter((c) => {
+  const visibleCategories = useMemo(() => {
+    const live = allCategories.filter((c) => {
       var _a;
       return !((_a = categoryOverrides[c.id]) == null ? void 0 : _a.deleted);
-    }),
-    [allCategories, categoryOverrides]
-  );
+    });
+    const byId = new Map(live.map((c) => [c.id, c]));
+    const ordered = categoryOrder.map((id) => byId.get(id)).filter(Boolean);
+    const seen = new Set(ordered.map((c) => c.id));
+    return [...ordered, ...live.filter((c) => !seen.has(c.id))];
+  }, [allCategories, categoryOverrides, categoryOrder]);
   const monthExpenses = useMemo(() => {
     return expenses.filter((x) => x.date >= periodRange.startStr && x.date < periodRange.endStr);
   }, [expenses, periodRange]);
@@ -1075,6 +1196,13 @@ function HomeExpenses() {
     return TXT[language2][key].replace("{n}", n);
   }
   const isLowBalance = !loading && notificationsEnabled && balance < 1e3;
+  useEffect(() => {
+    if (!showNewCategoryForm) return;
+    const id = setTimeout(() => {
+      if (newCatFormRef.current) newCatFormRef.current.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }, 60);
+    return () => clearTimeout(id);
+  }, [showNewCategoryForm]);
   const [plannerMonth, setPlannerMonth] = useState(viewMonth);
   const [plannerYear, setPlannerYear] = useState(viewYear);
   const [plannerTab, setPlannerTab] = useState("current");
@@ -2325,7 +2453,7 @@ function HomeExpenses() {
             style: { padding: "6px 8px", borderRadius: 8, border: "1px solid #E4E7ED", fontSize: 12, color: "#4a463d" }
           }
         )),
-        plannerTab === "facts" ? /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAllExpense), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700, color: "#E64A3B" } }, currency, " ", fmt(financialFacts.allTimeExpenseTotal))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAllIncome), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700, color: "#2E9E5B" } }, currency, " ", fmt(financialFacts.allTimeIncomeTotal))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAvgMonthly), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700 } }, currency, " ", fmt(financialFacts.avgMonthly))), financialFacts.topCategory && /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factTopCategory), /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 700, display: "flex", alignItems: "center", gap: 6 } }, financialFacts.topCategory.icon, " ", catLabel(financialFacts.topCategory), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { color: "#8A93A6", fontWeight: 400 } }, "(", currency, " ", fmt(financialFacts.topCategoryTotal), ")"))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factTxCount), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700 } }, financialFacts.transactionsCount))) : plannerCategoryBreakdown.length === 0 ? /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", color: "#9AA3B2", fontSize: 14, padding: "20px 0" } }, t.noExpensesMonth) : plannerCategoryFilter ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(
+        plannerTab === "facts" ? /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAllExpense), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700, color: "#E64A3B" } }, currency, " ", fmt(financialFacts.allTimeExpenseTotal))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAllIncome), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700, color: "#2E9E5B" } }, currency, " ", fmt(financialFacts.allTimeIncomeTotal))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAvgMonthly), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700 } }, currency, " ", fmt(financialFacts.avgMonthly))), financialFacts.topCategory && /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factTopCategory), /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 700, display: "flex", alignItems: "center", gap: 6 } }, /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c: financialFacts.topCategory, size: 16, color: financialFacts.topCategory.color }), " ", catLabel(financialFacts.topCategory), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { color: "#8A93A6", fontWeight: 400 } }, "(", currency, " ", fmt(financialFacts.topCategoryTotal), ")"))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factTxCount), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700 } }, financialFacts.transactionsCount))) : plannerCategoryBreakdown.length === 0 ? /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", color: "#9AA3B2", fontSize: 14, padding: "20px 0" } }, t.noExpensesMonth) : plannerCategoryFilter ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => setPlannerCategoryFilter(null),
@@ -2885,7 +3013,7 @@ function HomeExpenses() {
           /* @__PURE__ */ React.createElement("span", null, "\u{1F9EE}"),
           /* @__PURE__ */ React.createElement("span", null, t.calculator)
         )),
-        addTab === "expense" && showNewCategoryForm && /* @__PURE__ */ React.createElement("div", { style: { background: "#F8F9FB", borderRadius: 12, padding: 12, margin: "0 0 10px" } }, /* @__PURE__ */ React.createElement(
+        addTab === "expense" && showNewCategoryForm && /* @__PURE__ */ React.createElement("div", { ref: newCatFormRef, style: { background: "#F8F9FB", borderRadius: 12, padding: 12, margin: "0 0 10px" } }, /* @__PURE__ */ React.createElement(
           "input",
           {
             type: "text",
@@ -2903,24 +3031,7 @@ function HomeExpenses() {
               boxSizing: "border-box"
             }
           }
-        ), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 } }, CUSTOM_ICON_CHOICES.map((icon) => /* @__PURE__ */ React.createElement(
-          "button",
-          {
-            type: "button",
-            key: icon,
-            onClick: () => setNewCatIcon(icon),
-            style: {
-              width: 34,
-              height: 34,
-              borderRadius: 9,
-              fontSize: 16,
-              cursor: "pointer",
-              border: newCatIcon === icon ? `2px solid ${theme.accent}` : "1px solid #E4E7ED",
-              background: newCatIcon === icon ? `${theme.accent}1a` : "#fff"
-            }
-          },
-          icon
-        ))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(
+        ), /* @__PURE__ */ React.createElement(IconPickerGrid, { value: newCatIcon, onChange: setNewCatIcon, accent: theme.accent, moreLabel: t.moreIcons }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             type: "button",
@@ -2997,34 +3108,44 @@ function HomeExpenses() {
           "\u2715"
         ),
         /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: "#3A3F4B", marginTop: 4, marginBottom: 14, paddingInlineStart: 36 } }, t.manageCategories),
-        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, visibleCategories.map((c) => /* @__PURE__ */ React.createElement("div", { key: c.id, style: { border: "1px solid #E4E7ED", borderRadius: 12, padding: "8px 10px" } }, editingCategoryId === c.id ? /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c, size: 18, color: c.color }), /* @__PURE__ */ React.createElement(
+        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, visibleCategories.map((c) => /* @__PURE__ */ React.createElement("div", { key: c.id, style: { border: "1px solid #E4E7ED", borderRadius: 12, padding: "8px 10px" } }, editingCategoryId === c.id ? /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 10 } }, /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c: { icon: categoryIconDraft || c.icon }, size: 18, color: c.color }), /* @__PURE__ */ React.createElement(
           "input",
           {
             type: "text",
             value: categoryNameDraft,
             onChange: (e) => setCategoryNameDraft(e.target.value),
             onKeyDown: (e) => {
-              if (e.key === "Enter") renameCategory(c.id, categoryNameDraft);
+              if (e.key === "Enter") saveCategoryEdit(c.id, categoryNameDraft, categoryIconDraft);
               if (e.key === "Escape") setEditingCategoryId(null);
             },
             autoFocus: true,
             style: { flex: 1, minWidth: 0, padding: "6px 8px", borderRadius: 8, border: "1px solid #E4E7ED", fontSize: 13, boxSizing: "border-box" }
           }
-        ), /* @__PURE__ */ React.createElement(
-          "button",
+        )), /* @__PURE__ */ React.createElement(
+          IconPickerGrid,
           {
-            onClick: () => renameCategory(c.id, categoryNameDraft),
-            style: { padding: "6px 10px", borderRadius: 8, border: "none", background: theme.accent, color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer" }
-          },
-          t.save
-        ), /* @__PURE__ */ React.createElement(
+            value: categoryIconDraft,
+            onChange: setCategoryIconDraft,
+            accent: theme.accent,
+            moreLabel: t.moreIcons,
+            extra: c.icon,
+            gridMaxHeight: 150
+          }
+        ), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => setEditingCategoryId(null),
-            style: { padding: "6px 10px", borderRadius: 8, border: "1px solid #E4E7ED", background: "#fff", color: "#8A93A6", fontSize: 12, cursor: "pointer" }
+            style: { flex: 1, padding: "8px", borderRadius: 8, border: "1px solid #E4E7ED", background: "#fff", color: "#8A93A6", fontSize: 12, fontWeight: 700, cursor: "pointer" }
           },
           t.cancel
-        )) : confirmDeleteCategoryId === c.id ? /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#5A6072", marginBottom: 8 } }, t.deleteCategoryConfirm), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(
+        ), /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => saveCategoryEdit(c.id, categoryNameDraft, categoryIconDraft),
+            style: { flex: 1, padding: "8px", borderRadius: 8, border: "none", background: theme.accent, color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer" }
+          },
+          t.save
+        ))) : confirmDeleteCategoryId === c.id ? /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#5A6072", marginBottom: 8 } }, t.deleteCategoryConfirm), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => deleteCategory(c.id),
@@ -3038,12 +3159,31 @@ function HomeExpenses() {
             style: { flex: 1, padding: "7px", borderRadius: 8, border: "1px solid #E4E7ED", background: "#fff", color: "#8A93A6", fontSize: 12, cursor: "pointer" }
           },
           t.cancel
-        ))) : /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c, size: 18, color: c.color }), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, fontSize: 13, fontWeight: 600, color: "#3A3F4B" } }, catLabel(c)), /* @__PURE__ */ React.createElement(
+        ))) : /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c, size: 18, color: c.color }), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, minWidth: 0, fontSize: 13, fontWeight: 600, color: "#3A3F4B" } }, catLabel(c)), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 2 } }, /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => moveCategory(c.id, -1),
+            "aria-label": "move-up",
+            disabled: visibleCategories[0] && visibleCategories[0].id === c.id,
+            style: { width: 28, height: 15, padding: 0, borderRadius: 5, border: "1px solid #E4E7ED", background: "#fff", color: "#5A6072", fontSize: 8, lineHeight: 1, cursor: "pointer", opacity: visibleCategories[0] && visibleCategories[0].id === c.id ? 0.3 : 1 }
+          },
+          "\u25B2"
+        ), /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => moveCategory(c.id, 1),
+            "aria-label": "move-down",
+            disabled: visibleCategories[visibleCategories.length - 1] && visibleCategories[visibleCategories.length - 1].id === c.id,
+            style: { width: 28, height: 15, padding: 0, borderRadius: 5, border: "1px solid #E4E7ED", background: "#fff", color: "#5A6072", fontSize: 8, lineHeight: 1, cursor: "pointer", opacity: visibleCategories[visibleCategories.length - 1] && visibleCategories[visibleCategories.length - 1].id === c.id ? 0.3 : 1 }
+          },
+          "\u25BC"
+        )), /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => {
               setEditingCategoryId(c.id);
               setCategoryNameDraft(catLabel(c));
+              setCategoryIconDraft(c.icon);
             },
             "aria-label": "edit",
             style: { width: 30, height: 30, borderRadius: 8, border: "1px solid #E4E7ED", background: "#fff", cursor: "pointer", fontSize: 13 }

@@ -1,8 +1,9 @@
-const CACHE_NAME = "masroufat-v37";
+const CACHE_NAME = "masroufat-v39";
 const ASSETS = [
   "./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png",
   "./component.js", "./storage-shim.js", "./recharts-shim.js",
   "./react.js", "./react-dom.js",
+  ...Array.from({ length: 75 }, (_, i) => `./icons/ic${String(i + 1).padStart(2, "0")}.png`),
 ];
 
 self.addEventListener("install", (event) => {
