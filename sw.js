@@ -1,14 +1,20 @@
-const CACHE_NAME = "masroufat-v39";
+const CACHE_NAME = "masroufat-v41";
 const ASSETS = [
   "./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png",
   "./component.js", "./storage-shim.js", "./recharts-shim.js",
   "./react.js", "./react-dom.js",
-  ...Array.from({ length: 75 }, (_, i) => `./icons/ic${String(i + 1).padStart(2, "0")}.png`),
 ];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).catch(() => {})
+    caches.open(CACHE_NAME).then((cache) =>
+      // cache: "reload" skips the browser's HTTP cache. GitHub Pages sends max-age=600, so
+      // without it a new release could pre-cache the PREVIOUS release's files (the app would
+      // then keep showing the old version even though the new files were uploaded).
+      Promise.all(
+        ASSETS.map((url) => cache.add(new Request(url, { cache: "reload" })).catch(() => {}))
+      )
+    )
   );
   self.skipWaiting();
 });
