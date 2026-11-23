@@ -286,7 +286,7 @@ const WEEKDAY_NAMES = {
   ar: ["\u0627\u0644\u0623\u062D\u062F", "\u0627\u0644\u0627\u062B\u0646\u064A\u0646", "\u0627\u0644\u062B\u0644\u0627\u062B\u0627\u0621", "\u0627\u0644\u0623\u0631\u0628\u0639\u0627\u0621", "\u0627\u0644\u062E\u0645\u064A\u0633", "\u0627\u0644\u062C\u0645\u0639\u0629", "\u0627\u0644\u0633\u0628\u062A"],
   en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 };
-const APP_VERSION = 42;
+const APP_VERSION = 43;
 const CURRENCIES = [
   { code: "EGP", ar: "\u062C\u0646\u064A\u0647 \u0645\u0635\u0631\u064A", en: "Egyptian Pound" },
   { code: "USD", ar: "\u062F\u0648\u0644\u0627\u0631 \u0623\u0645\u0631\u064A\u0643\u064A", en: "US Dollar" },
@@ -2394,9 +2394,9 @@ function HomeExpenses() {
         "div",
         {
           onClick: (e) => e.stopPropagation(),
-          style: { position: "relative", width: "100%", maxWidth: 460, margin: "0 auto", background: "#fff", borderRadius: "20px 20px 0 0", padding: "18px 18px 24px", maxHeight: "85vh", overflowY: "auto" }
+          style: { position: "relative", width: "100%", maxWidth: 460, margin: "0 auto", background: "#fff", borderRadius: "20px 20px 0 0", maxHeight: "85vh", display: "flex", flexDirection: "column", overflow: "hidden" }
         },
-        /* @__PURE__ */ React.createElement(
+        /* @__PURE__ */ React.createElement("div", { style: { flex: "none", padding: "18px 18px 0", borderBottom: "1px solid #F0F1F5", background: "#fff" } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => {
@@ -2423,10 +2423,7 @@ function HomeExpenses() {
             }
           },
           "\u2715"
-        ),
-        /* @__PURE__ */ React.createElement("div", { style: { width: 40, height: 4, background: "#E4E7ED", borderRadius: 2, margin: "0 auto 16px" } }),
-        /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 16, marginBottom: 14, textAlign: "center" } }, plannerMode === "planner" ? t.planner : t.schedules),
-        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, marginBottom: 16, justifyContent: "center" } }, (plannerMode === "planner" ? [
+        ), /* @__PURE__ */ React.createElement("div", { style: { width: 40, height: 4, background: "#E4E7ED", borderRadius: 2, margin: "0 auto 16px" } }), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 16, marginBottom: 14, textAlign: "center" } }, plannerMode === "planner" ? t.planner : t.schedules), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, marginBottom: 16, justifyContent: "center" } }, (plannerMode === "planner" ? [
           { id: "current", icon: "\u{1F5D3}\uFE0F", label: t.tabCurrent },
           { id: "past", icon: "\u{1F4C5}", label: t.tabPast }
         ] : [
@@ -2458,9 +2455,7 @@ function HomeExpenses() {
           },
           /* @__PURE__ */ React.createElement("span", { style: { fontSize: 18 } }, tab.icon),
           /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, fontWeight: 700 } }, tab.label)
-        ))),
-        plannerTab === "current" && /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", fontWeight: 600, fontSize: 14, marginBottom: 14 } }, MONTH_NAMES[language][plannerMonth], " ", plannerYear),
-        plannerTab === "past" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 14 } }, /* @__PURE__ */ React.createElement(
+        ))), plannerTab === "current" && /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", fontWeight: 600, fontSize: 14, marginBottom: 14 } }, MONTH_NAMES[language][plannerMonth], " ", plannerYear), plannerTab === "past" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 14 } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => shiftPlannerMonth(1),
@@ -2476,8 +2471,7 @@ function HomeExpenses() {
             style: { background: "#F3F5F9", border: "none", borderRadius: 8, width: 28, height: 28, fontSize: 14, cursor: "pointer" }
           },
           isRtl ? "\u203A" : "\u2039"
-        )),
-        plannerTab === "years" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 14 } }, /* @__PURE__ */ React.createElement(
+        )), plannerTab === "years" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 14 } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => setPlannerYearOnly((y) => y + 1),
@@ -2493,8 +2487,7 @@ function HomeExpenses() {
             style: { background: "#F3F5F9", border: "none", borderRadius: 8, width: 28, height: 28, fontSize: 14, cursor: "pointer" }
           },
           isRtl ? "\u203A" : "\u2039"
-        )),
-        plannerTab === "custom" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 14 } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 12, color: "#8A93A6" } }, t.fromDate), /* @__PURE__ */ React.createElement(
+        )), plannerTab === "custom" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 14 } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 12, color: "#8A93A6" } }, t.fromDate), /* @__PURE__ */ React.createElement(
           "input",
           {
             type: "date",
@@ -2510,8 +2503,8 @@ function HomeExpenses() {
             onChange: (e) => setCustomEnd(e.target.value),
             style: { padding: "6px 8px", borderRadius: 8, border: "1px solid #E4E7ED", fontSize: 12, color: "#4a463d" }
           }
-        )),
-        plannerTab === "facts" ? /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAllExpense), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700, color: "#E64A3B" } }, currency, " ", fmt(financialFacts.allTimeExpenseTotal))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAllIncome), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700, color: "#2E9E5B" } }, currency, " ", fmt(financialFacts.allTimeIncomeTotal))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAvgMonthly), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700 } }, currency, " ", fmt(financialFacts.avgMonthly))), financialFacts.topCategory && /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factTopCategory), /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 700, display: "flex", alignItems: "center", gap: 6 } }, /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c: financialFacts.topCategory, size: 16, color: financialFacts.topCategory.color }), " ", catLabel(financialFacts.topCategory), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { color: "#8A93A6", fontWeight: 400 } }, "(", currency, " ", fmt(financialFacts.topCategoryTotal), ")"))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factTxCount), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700 } }, financialFacts.transactionsCount))) : plannerCategoryBreakdown.length === 0 ? /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", color: "#9AA3B2", fontSize: 14, padding: "20px 0" } }, t.noExpensesMonth) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(DonutChart, { data: plannerCategoryBreakdown, onSelect: setPlannerCategoryFilter }, /* @__PURE__ */ React.createElement("div", { style: { width: 118, textAlign: "center", lineHeight: 1.25 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#8A93A6" } }, t.plannerTotalExpense), /* @__PURE__ */ React.createElement(
+        ))),
+        /* @__PURE__ */ React.createElement("div", { style: { flex: "1 1 auto", minHeight: 0, overflowY: "auto", overscrollBehavior: "contain", padding: "14px 18px 24px" } }, plannerTab === "facts" ? /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAllExpense), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700, color: "#E64A3B" } }, currency, " ", fmt(financialFacts.allTimeExpenseTotal))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAllIncome), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700, color: "#2E9E5B" } }, currency, " ", fmt(financialFacts.allTimeIncomeTotal))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factAvgMonthly), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700 } }, currency, " ", fmt(financialFacts.avgMonthly))), financialFacts.topCategory && /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factTopCategory), /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 700, display: "flex", alignItems: "center", gap: 6 } }, /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c: financialFacts.topCategory, size: 16, color: financialFacts.topCategory.color }), " ", catLabel(financialFacts.topCategory), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { color: "#8A93A6", fontWeight: 400 } }, "(", currency, " ", fmt(financialFacts.topCategoryTotal), ")"))), /* @__PURE__ */ React.createElement("div", { className: "card", style: { padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#8A93A6" } }, t.factTxCount), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 700 } }, financialFacts.transactionsCount))) : plannerCategoryBreakdown.length === 0 ? /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", color: "#9AA3B2", fontSize: 14, padding: "20px 0" } }, t.noExpensesMonth) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(DonutChart, { data: plannerCategoryBreakdown, onSelect: setPlannerCategoryFilter }, /* @__PURE__ */ React.createElement("div", { style: { width: 118, textAlign: "center", lineHeight: 1.25 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#8A93A6" } }, t.plannerTotalExpense), /* @__PURE__ */ React.createElement(
           "div",
           {
             className: "amount-num",
@@ -2544,7 +2537,7 @@ function HomeExpenses() {
           /* @__PURE__ */ React.createElement("span", { style: { width: 12, height: 12, borderRadius: "50%", background: c.color, flexShrink: 0 } }),
           /* @__PURE__ */ React.createElement("span", { style: { flex: 1, fontSize: 14, display: "flex", alignItems: "center", gap: 6 } }, /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c, size: 16, color: c.color }), " ", catLabel(c)),
           /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontSize: 14, fontWeight: 700 } }, currency, " ", fmt(c.total), " ", /* @__PURE__ */ React.createElement("span", { style: { color: "#9AA3B2", fontWeight: 400 } }, "(", Math.round(c.total / plannerExpenseTotal * 100), "%)"))
-        ))))
+        )))))
       )
     ),
     showPlanner && plannerCategoryFilter && plannerFilteredCategory && /* @__PURE__ */ React.createElement(
@@ -2848,12 +2841,13 @@ function HomeExpenses() {
             margin: "0 auto",
             background: "#fff",
             borderRadius: "20px 20px 0 0",
-            padding: "18px 18px 24px",
             maxHeight: "85vh",
-            overflowY: "auto"
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden"
           }
         },
-        /* @__PURE__ */ React.createElement(
+        /* @__PURE__ */ React.createElement("div", { style: { flex: "none", padding: "18px 18px 8px", background: "#fff" } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             type: "button",
@@ -2878,9 +2872,7 @@ function HomeExpenses() {
             }
           },
           "\u2715"
-        ),
-        /* @__PURE__ */ React.createElement("div", { style: { width: 40, height: 4, background: "#E4E7ED", borderRadius: 2, margin: "0 auto 16px" } }),
-        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 16, background: "#F3F5F9", borderRadius: 12, padding: 4 } }, /* @__PURE__ */ React.createElement(
+        ), /* @__PURE__ */ React.createElement("div", { style: { width: 40, height: 4, background: "#E4E7ED", borderRadius: 2, margin: "0 auto 16px" } }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 16, background: "#F3F5F9", borderRadius: 12, padding: 4 } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => setAddTab("expense"),
@@ -2916,8 +2908,7 @@ function HomeExpenses() {
             }
           },
           t.income
-        )),
-        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 4 } }, /* @__PURE__ */ React.createElement(
+        )), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 4 } }, /* @__PURE__ */ React.createElement(
           "input",
           {
             type: "number",
@@ -2950,9 +2941,7 @@ function HomeExpenses() {
             onChange: (e) => setDate(e.target.value),
             style: { flex: 1, minWidth: 0, padding: "9px 10px", borderRadius: 9, border: "1px solid #E4E7ED", fontSize: 13, color: "#4a463d" }
           }
-        )),
-        amountError && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#E64A3B", marginBottom: 8 } }, t.amountErr),
-        /* @__PURE__ */ React.createElement(
+        )), amountError && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#E64A3B", marginBottom: 8 } }, t.amountErr), /* @__PURE__ */ React.createElement(
           "input",
           {
             type: "text",
@@ -2972,8 +2961,8 @@ function HomeExpenses() {
               boxSizing: "border-box"
             }
           }
-        ),
-        addTab === "expense" && /* @__PURE__ */ React.createElement(
+        )),
+        /* @__PURE__ */ React.createElement("div", { style: { flex: "1 1 auto", minHeight: 0, overflowY: "auto", overscrollBehavior: "contain", padding: "6px 18px" } }, addTab === "expense" && /* @__PURE__ */ React.createElement(
           "div",
           {
             style: {
@@ -3018,9 +3007,45 @@ function HomeExpenses() {
             /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c, size: 20, color: c.color }),
             /* @__PURE__ */ React.createElement("span", { style: { maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, catLabel(c))
           ))
-        ),
-        addTab === "expense" && categoryError && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#E64A3B", marginBottom: 8 } }, t.categoryErr),
-        /* @__PURE__ */ React.createElement(
+        ), addTab === "expense" && categoryError && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#E64A3B", marginBottom: 8 } }, t.categoryErr), addTab === "expense" && showNewCategoryForm && /* @__PURE__ */ React.createElement("div", { ref: newCatFormRef, style: { background: "#F8F9FB", borderRadius: 12, padding: 12, margin: "0 0 10px" } }, /* @__PURE__ */ React.createElement(
+          "input",
+          {
+            type: "text",
+            value: newCatName,
+            onChange: (e) => setNewCatName(e.target.value),
+            placeholder: t.newCategoryName,
+            autoFocus: true,
+            style: {
+              width: "100%",
+              padding: "9px 10px",
+              borderRadius: 9,
+              border: "1px solid #E4E7ED",
+              fontSize: 14,
+              marginBottom: 10,
+              boxSizing: "border-box"
+            }
+          }
+        ), /* @__PURE__ */ React.createElement(IconPickerGrid, { value: newCatIcon, onChange: setNewCatIcon, accent: theme.accent, moreLabel: t.moreIcons }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            type: "button",
+            onClick: () => {
+              setShowNewCategoryForm(false);
+              setNewCatName("");
+            },
+            style: { flex: 1, padding: "9px", borderRadius: 9, border: "1px solid #E4E7ED", background: "#fff", color: "#8A93A6", fontWeight: 700, fontSize: 13, cursor: "pointer" }
+          },
+          t.cancel
+        ), /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            type: "button",
+            onClick: addCustomCategory,
+            style: { flex: 1, padding: "9px", borderRadius: 9, border: "none", background: theme.accent, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }
+          },
+          t.newCategorySave
+        )))),
+        /* @__PURE__ */ React.createElement("div", { style: { flex: "none", padding: "10px 18px 24px", borderTop: "1px solid #F0F1F5", background: "#fff" } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             type: "button",
@@ -3040,8 +3065,7 @@ function HomeExpenses() {
             }
           },
           saving ? t.saving : editingId ? t.saveChanges : addTab === "expense" ? t.addExpense : t.addIncome
-        ),
-        addTab === "expense" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, margin: "10px 0" } }, /* @__PURE__ */ React.createElement(
+        ), addTab === "expense" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, margin: "10px 0 0" } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             type: "button",
@@ -3110,44 +3134,6 @@ function HomeExpenses() {
           },
           /* @__PURE__ */ React.createElement("span", null, "\u{1F9EE}"),
           /* @__PURE__ */ React.createElement("span", null, t.calculator)
-        )),
-        addTab === "expense" && showNewCategoryForm && /* @__PURE__ */ React.createElement("div", { ref: newCatFormRef, style: { background: "#F8F9FB", borderRadius: 12, padding: 12, margin: "0 0 10px" } }, /* @__PURE__ */ React.createElement(
-          "input",
-          {
-            type: "text",
-            value: newCatName,
-            onChange: (e) => setNewCatName(e.target.value),
-            placeholder: t.newCategoryName,
-            autoFocus: true,
-            style: {
-              width: "100%",
-              padding: "9px 10px",
-              borderRadius: 9,
-              border: "1px solid #E4E7ED",
-              fontSize: 14,
-              marginBottom: 10,
-              boxSizing: "border-box"
-            }
-          }
-        ), /* @__PURE__ */ React.createElement(IconPickerGrid, { value: newCatIcon, onChange: setNewCatIcon, accent: theme.accent, moreLabel: t.moreIcons }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(
-          "button",
-          {
-            type: "button",
-            onClick: () => {
-              setShowNewCategoryForm(false);
-              setNewCatName("");
-            },
-            style: { flex: 1, padding: "9px", borderRadius: 9, border: "1px solid #E4E7ED", background: "#fff", color: "#8A93A6", fontWeight: 700, fontSize: 13, cursor: "pointer" }
-          },
-          t.cancel
-        ), /* @__PURE__ */ React.createElement(
-          "button",
-          {
-            type: "button",
-            onClick: addCustomCategory,
-            style: { flex: 1, padding: "9px", borderRadius: 9, border: "none", background: theme.accent, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }
-          },
-          t.newCategorySave
         )))
       )
     ),
