@@ -286,7 +286,7 @@ const WEEKDAY_NAMES = {
   ar: ["\u0627\u0644\u0623\u062D\u062F", "\u0627\u0644\u0627\u062B\u0646\u064A\u0646", "\u0627\u0644\u062B\u0644\u0627\u062B\u0627\u0621", "\u0627\u0644\u0623\u0631\u0628\u0639\u0627\u0621", "\u0627\u0644\u062E\u0645\u064A\u0633", "\u0627\u0644\u062C\u0645\u0639\u0629", "\u0627\u0644\u0633\u0628\u062A"],
   en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 };
-const APP_VERSION = 43;
+const APP_VERSION = 44;
 const CURRENCIES = [
   { code: "EGP", ar: "\u062C\u0646\u064A\u0647 \u0645\u0635\u0631\u064A", en: "Egyptian Pound" },
   { code: "USD", ar: "\u062F\u0648\u0644\u0627\u0631 \u0623\u0645\u0631\u064A\u0643\u064A", en: "US Dollar" },
@@ -2555,14 +2555,15 @@ function HomeExpenses() {
             width: "100%",
             maxWidth: 360,
             maxHeight: "80vh",
-            overflowY: "auto",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
             background: "#fff",
             borderRadius: 18,
-            boxShadow: "0 12px 32px rgba(0,0,0,0.25)",
-            padding: 18
+            boxShadow: "0 12px 32px rgba(0,0,0,0.25)"
           }
         },
-        /* @__PURE__ */ React.createElement(
+        /* @__PURE__ */ React.createElement("div", { style: { flex: "none", padding: "18px 18px 14px", borderBottom: "1px solid #F0F1F5", background: "#fff" } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => setPlannerCategoryFilter(null),
@@ -2585,8 +2586,7 @@ function HomeExpenses() {
             }
           },
           "\u2715"
-        ),
-        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10, marginTop: 4, marginBottom: 16, paddingInlineStart: 36 } }, /* @__PURE__ */ React.createElement("div", { style: {
+        ), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10, marginTop: 4, paddingInlineStart: 36 } }, /* @__PURE__ */ React.createElement("div", { style: {
           width: 40,
           height: 40,
           borderRadius: "50%",
@@ -2595,8 +2595,8 @@ function HomeExpenses() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center"
-        } }, /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c: plannerFilteredCategory, size: 20, color: plannerFilteredCategory.color })), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minWidth: 0, fontSize: 15, fontWeight: 700 } }, catLabel(plannerFilteredCategory)), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontSize: 15, fontWeight: 700, color: plannerFilteredCategory.color } }, currency, " ", fmt(plannerFilteredCategoryTotal))),
-        plannerCategoryFilteredGroups.map(([day, items]) => {
+        } }, /* @__PURE__ */ React.createElement(CatIconOrEmoji, { c: plannerFilteredCategory, size: 20, color: plannerFilteredCategory.color })), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minWidth: 0, fontSize: 15, fontWeight: 700 } }, catLabel(plannerFilteredCategory)), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontSize: 15, fontWeight: 700, color: plannerFilteredCategory.color } }, currency, " ", fmt(plannerFilteredCategoryTotal)))),
+        /* @__PURE__ */ React.createElement("div", { style: { flex: "1 1 auto", minHeight: 0, overflowY: "auto", overscrollBehavior: "contain", padding: "14px 18px 8px" } }, plannerCategoryFilteredGroups.map(([day, items]) => {
           const dayTotal = items.reduce((sum, x) => sum + x.amount, 0);
           return /* @__PURE__ */ React.createElement("div", { key: day, style: { background: "#FAFBFC", border: "1px solid #F0F1F5", borderRadius: 14, marginBottom: 10, overflow: "hidden" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", borderBottom: "1px solid #F0F1F5" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#8A93A6" } }, formatTxDate(day, language)), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontSize: 13, fontWeight: 700, color: "#E64A3B" } }, currency, " ", fmt(dayTotal))), items.map((x, i) => /* @__PURE__ */ React.createElement(
             "div",
@@ -2615,7 +2615,7 @@ function HomeExpenses() {
             /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minWidth: 0, textAlign: isRtl ? "right" : "left" } }, x.note ? /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "#5A6072", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, x.note) : /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "#C7CCD6" } }, t.noNote)),
             /* @__PURE__ */ React.createElement("div", { className: "amount-num", style: { fontSize: 13, fontWeight: 700, color: "#E64A3B" } }, "-", fmt(x.amount))
           )));
-        })
+        }))
       )
     ),
     showIncomeSheet && /* @__PURE__ */ React.createElement(
