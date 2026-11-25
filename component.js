@@ -286,7 +286,7 @@ const WEEKDAY_NAMES = {
   ar: ["\u0627\u0644\u0623\u062D\u062F", "\u0627\u0644\u0627\u062B\u0646\u064A\u0646", "\u0627\u0644\u062B\u0644\u0627\u062B\u0627\u0621", "\u0627\u0644\u0623\u0631\u0628\u0639\u0627\u0621", "\u0627\u0644\u062E\u0645\u064A\u0633", "\u0627\u0644\u062C\u0645\u0639\u0629", "\u0627\u0644\u0633\u0628\u062A"],
   en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 };
-const APP_VERSION = 45;
+const APP_VERSION = 46;
 const CURRENCIES = [
   { code: "EGP", ar: "\u062C\u0646\u064A\u0647 \u0645\u0635\u0631\u064A", en: "Egyptian Pound" },
   { code: "USD", ar: "\u062F\u0648\u0644\u0627\u0631 \u0623\u0645\u0631\u064A\u0643\u064A", en: "US Dollar" },
@@ -1537,14 +1537,14 @@ function HomeExpenses() {
           marginBottom: 8
         }
       },
-      /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, direction: "ltr" } }, /* @__PURE__ */ React.createElement(
+      /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, direction: "ltr", flexDirection: isRtl ? "row" : "row-reverse" } }, /* @__PURE__ */ React.createElement(
         "button",
         {
           onClick: () => shiftMonth(1),
           "aria-label": isRtl ? "\u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u062C\u0627\u064A" : "Next month",
           style: { background: "#fff", border: "none", borderRadius: 10, width: 34, height: 34, fontSize: 16, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }
         },
-        "\u2039"
+        isRtl ? "\u2039" : "\u203A"
       ), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", position: "relative", direction: isRtl ? "rtl" : "ltr" } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 15 } }, MONTH_NAMES[language][displayPeriodLabel.month], " ", displayPeriodLabel.year), monthStartDay !== 1 && /* @__PURE__ */ React.createElement(
         "button",
         {
@@ -1603,7 +1603,7 @@ function HomeExpenses() {
           "aria-label": isRtl ? "\u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u0644\u064A \u0641\u0627\u062A" : "Previous month",
           style: { background: "#fff", border: "none", borderRadius: 10, width: 34, height: 34, fontSize: 16, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }
         },
-        "\u203A"
+        isRtl ? "\u203A" : "\u2039"
       )),
       /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { width: 40, height: 40, borderRadius: 12, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" } }, "\u{1F451}"), /* @__PURE__ */ React.createElement(
         "button",
@@ -2455,14 +2455,14 @@ function HomeExpenses() {
           },
           /* @__PURE__ */ React.createElement("span", { style: { fontSize: 18 } }, tab.icon),
           /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, fontWeight: 700 } }, tab.label)
-        ))), plannerTab === "current" && /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", fontWeight: 600, fontSize: 14, marginBottom: 14 } }, MONTH_NAMES[language][plannerMonth], " ", plannerYear), plannerTab === "past" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 14, direction: "ltr" } }, /* @__PURE__ */ React.createElement(
+        ))), plannerTab === "current" && /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", fontWeight: 600, fontSize: 14, marginBottom: 14 } }, MONTH_NAMES[language][plannerMonth], " ", plannerYear), plannerTab === "past" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 14, direction: "ltr", flexDirection: isRtl ? "row" : "row-reverse" } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => shiftPlannerMonth(1),
             "aria-label": isRtl ? "\u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u062C\u0627\u064A" : "Next month",
             style: { background: "#F3F5F9", border: "none", borderRadius: 8, width: 28, height: 28, fontSize: 14, cursor: "pointer" }
           },
-          "\u2039"
+          isRtl ? "\u2039" : "\u203A"
         ), /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 600, fontSize: 14, minWidth: 110, textAlign: "center", direction: isRtl ? "rtl" : "ltr" } }, MONTH_NAMES[language][plannerMonth], " ", plannerYear), /* @__PURE__ */ React.createElement(
           "button",
           {
@@ -2470,15 +2470,15 @@ function HomeExpenses() {
             "aria-label": isRtl ? "\u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u0644\u064A \u0641\u0627\u062A" : "Previous month",
             style: { background: "#F3F5F9", border: "none", borderRadius: 8, width: 28, height: 28, fontSize: 14, cursor: "pointer" }
           },
-          "\u203A"
-        )), plannerTab === "years" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 14, direction: "ltr" } }, /* @__PURE__ */ React.createElement(
+          isRtl ? "\u203A" : "\u2039"
+        )), plannerTab === "years" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 14, direction: "ltr", flexDirection: isRtl ? "row" : "row-reverse" } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => setPlannerYearOnly((y) => y + 1),
             "aria-label": isRtl ? "\u0627\u0644\u0633\u0646\u0629 \u0627\u0644\u062C\u0627\u064A\u0629" : "Next year",
             style: { background: "#F3F5F9", border: "none", borderRadius: 8, width: 28, height: 28, fontSize: 14, cursor: "pointer" }
           },
-          "\u2039"
+          isRtl ? "\u2039" : "\u203A"
         ), /* @__PURE__ */ React.createElement("span", { className: "amount-num", style: { fontWeight: 600, fontSize: 14, minWidth: 60, textAlign: "center" } }, plannerYearOnly), /* @__PURE__ */ React.createElement(
           "button",
           {
@@ -2486,7 +2486,7 @@ function HomeExpenses() {
             "aria-label": isRtl ? "\u0627\u0644\u0633\u0646\u0629 \u0627\u0644\u0644\u064A \u0641\u0627\u062A\u062A" : "Previous year",
             style: { background: "#F3F5F9", border: "none", borderRadius: 8, width: 28, height: 28, fontSize: 14, cursor: "pointer" }
           },
-          "\u203A"
+          isRtl ? "\u203A" : "\u2039"
         )), plannerTab === "custom" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 14 } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 12, color: "#8A93A6" } }, t.fromDate), /* @__PURE__ */ React.createElement(
           "input",
           {
@@ -2632,14 +2632,14 @@ function HomeExpenses() {
         },
         /* @__PURE__ */ React.createElement("div", { style: { width: 40, height: 4, background: "#E4E7ED", borderRadius: 2, margin: "0 auto 16px" } }),
         /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 16, marginBottom: 4, textAlign: "center" } }, t.incomeListTitle),
-        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 10, direction: "ltr" } }, /* @__PURE__ */ React.createElement(
+        /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 10, direction: "ltr", flexDirection: isRtl ? "row" : "row-reverse" } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => shiftIncomeMonth(1),
             "aria-label": isRtl ? "\u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u062C\u0627\u064A" : "Next month",
             style: { background: "#F3F5F9", border: "none", borderRadius: 8, width: 28, height: 28, fontSize: 14, cursor: "pointer" }
           },
-          "\u2039"
+          isRtl ? "\u2039" : "\u203A"
         ), /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 600, fontSize: 14, minWidth: 110, textAlign: "center", direction: isRtl ? "rtl" : "ltr" } }, MONTH_NAMES[language][incomeMonth], " ", incomeYear), /* @__PURE__ */ React.createElement(
           "button",
           {
@@ -2647,7 +2647,7 @@ function HomeExpenses() {
             "aria-label": isRtl ? "\u0627\u0644\u0634\u0647\u0631 \u0627\u0644\u0644\u064A \u0641\u0627\u062A" : "Previous month",
             style: { background: "#F3F5F9", border: "none", borderRadius: 8, width: 28, height: 28, fontSize: 14, cursor: "pointer" }
           },
-          "\u203A"
+          isRtl ? "\u203A" : "\u2039"
         )),
         /* @__PURE__ */ React.createElement("div", { className: "amount-num", style: { textAlign: "center", color: "#2E9E5B", fontWeight: 700, fontSize: 22, marginBottom: 14 } }, currency, " ", fmt(incomeSheetTotal)),
         sortedIncomeSheetIncomes.length === 0 ? /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", color: "#9AA3B2", fontSize: 14, padding: "20px 0" } }, t.noIncomeMonth) : /* @__PURE__ */ React.createElement("div", { style: { background: "#fff", borderRadius: 16, border: "1px solid #F0F1F5", overflow: "hidden" } }, sortedIncomeSheetIncomes.map((x, i) => /* @__PURE__ */ React.createElement("div", { key: x.id, style: { display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderTop: i > 0 ? "1px solid #F5F6F9" : "none" } }, /* @__PURE__ */ React.createElement("div", { className: "amount-num", style: { fontSize: 14, fontWeight: 700, minWidth: 64, color: "#2E9E5B" } }, "+", fmt(x.amount)), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minWidth: 0, textAlign: isRtl ? "right" : "left" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, fontWeight: 600 } }, formatTxDate(x.date, language)), x.note && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#9AA3B2", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, x.note)), /* @__PURE__ */ React.createElement("div", { style: { width: 38, height: 38, borderRadius: "50%", flexShrink: 0, background: "#E3F6EA", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17 } }, "\u{1F4B0}"), /* @__PURE__ */ React.createElement(
