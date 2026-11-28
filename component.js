@@ -286,7 +286,7 @@ const WEEKDAY_NAMES = {
   ar: ["\u0627\u0644\u0623\u062D\u062F", "\u0627\u0644\u0627\u062B\u0646\u064A\u0646", "\u0627\u0644\u062B\u0644\u0627\u062B\u0627\u0621", "\u0627\u0644\u0623\u0631\u0628\u0639\u0627\u0621", "\u0627\u0644\u062E\u0645\u064A\u0633", "\u0627\u0644\u062C\u0645\u0639\u0629", "\u0627\u0644\u0633\u0628\u062A"],
   en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 };
-const APP_VERSION = 46;
+const APP_VERSION = 48;
 const CURRENCIES = [
   { code: "EGP", ar: "\u062C\u0646\u064A\u0647 \u0645\u0635\u0631\u064A", en: "Egyptian Pound" },
   { code: "USD", ar: "\u062F\u0648\u0644\u0627\u0631 \u0623\u0645\u0631\u064A\u0643\u064A", en: "US Dollar" },
@@ -1444,6 +1444,36 @@ function HomeExpenses() {
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap');
         .amount-num { font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: plaintext; }
         button:focus-visible, input:focus-visible { outline: 2px solid ${theme.accent}; outline-offset: 2px; }
+        /* Raised, pressable look for the main action buttons: a darker "lip" under the button
+           (a box-shadow, so it never changes the button's size), a soft highlight on top, and
+           it sinks a little when pressed. --edge is the darker shade of the button's colour. */
+        .btn-raised {
+          background-image: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 55%, rgba(0,0,0,0.06) 100%);
+          box-shadow: 0 4px 0 var(--edge), 0 7px 10px rgba(20,26,38,0.18), inset 0 1px 0 rgba(255,255,255,0.35);
+          transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+          -webkit-tap-highlight-color: transparent;
+          user-select: none;
+        }
+        @media (hover: hover) { .btn-raised:hover:not(:disabled) { filter: brightness(1.05); } }
+        .btn-raised:active:not(:disabled) {
+          transform: translateY(3px);
+          box-shadow: 0 1px 0 var(--edge), 0 2px 4px rgba(20,26,38,0.18), inset 0 1px 0 rgba(255,255,255,0.25);
+        }
+        .btn-raised:disabled { box-shadow: 0 1px 0 var(--edge); }
+        /* Bottom bar buttons: every icon sits on the same raised "key" (same size for all four),
+           with a darker lip underneath, and the key sinks when the button is pressed. */
+        .nav-key { -webkit-tap-highlight-color: transparent; user-select: none; }
+        .nav-cap {
+          width: 40px; height: 32px; flex-shrink: 0; border-radius: 11px; margin-bottom: 5px;
+          display: flex; align-items: center; justify-content: center;
+          background: linear-gradient(180deg, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.12) 100%);
+          box-shadow: 0 3px 0 rgba(0,0,0,0.26), 0 5px 8px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.45);
+          transition: transform 0.08s ease, box-shadow 0.08s ease;
+        }
+        .nav-key:active .nav-cap {
+          transform: translateY(2px);
+          box-shadow: 0 1px 0 rgba(0,0,0,0.26), 0 2px 3px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.35);
+        }
         @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
       `),
     isLocked && /* @__PURE__ */ React.createElement("div", { style: {
@@ -2312,37 +2342,41 @@ function HomeExpenses() {
       display: "grid",
       gridTemplateColumns: "repeat(5, 1fr)",
       alignItems: "flex-end",
-      paddingBottom: 12
+      paddingBottom: 8
     } }, /* @__PURE__ */ React.createElement(
       "button",
       {
         onClick: () => setShowMenu((v) => !v),
-        style: { display: "flex", flexDirection: "column", alignItems: "center", background: "none", border: "none", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", padding: 0 }
+        className: "nav-key",
+        style: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: 63, background: "none", border: "none", color: "#fff", fontSize: 11, lineHeight: 1.15, textAlign: "center", fontWeight: 700, cursor: "pointer", padding: 0 }
       },
-      /* @__PURE__ */ React.createElement("div", { style: { fontSize: 25, filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.35)) drop-shadow(0 -1px 0 rgba(255,255,255,0.35))" } }, "\u22EF"),
+      /* @__PURE__ */ React.createElement("div", { className: "nav-cap" }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 20, lineHeight: 1, filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.35))" } }, "\u22EF")),
       t.more
     ), /* @__PURE__ */ React.createElement(
       "button",
       {
         onClick: openPlanner,
-        style: { display: "flex", flexDirection: "column", alignItems: "center", background: "none", border: "none", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", padding: 0 }
+        className: "nav-key",
+        style: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: 63, background: "none", border: "none", color: "#fff", fontSize: 11, lineHeight: 1.15, textAlign: "center", fontWeight: 700, cursor: "pointer", padding: 0 }
       },
-      /* @__PURE__ */ React.createElement("div", { style: { fontSize: 25, filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.35)) drop-shadow(0 -1px 0 rgba(255,255,255,0.35))" } }, "\u{1F4CA}"),
+      /* @__PURE__ */ React.createElement("div", { className: "nav-cap" }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 20, lineHeight: 1, filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.35))" } }, "\u{1F4CA}")),
       t.planner
     ), /* @__PURE__ */ React.createElement("div", null), /* @__PURE__ */ React.createElement(
       "button",
       {
         onClick: openSchedules,
-        style: { display: "flex", flexDirection: "column", alignItems: "center", background: "none", border: "none", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", padding: 0 }
+        className: "nav-key",
+        style: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: 63, background: "none", border: "none", color: "#fff", fontSize: 11, lineHeight: 1.15, textAlign: "center", fontWeight: 700, cursor: "pointer", padding: 0 }
       },
-      /* @__PURE__ */ React.createElement("div", { style: { fontSize: 25, filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.35)) drop-shadow(0 -1px 0 rgba(255,255,255,0.35))" } }, "\u{1F5C2}\uFE0F"),
+      /* @__PURE__ */ React.createElement("div", { className: "nav-cap" }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 20, lineHeight: 1, filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.35))" } }, "\u{1F5C2}\uFE0F")),
       t.schedules
     ), /* @__PURE__ */ React.createElement(
       "button",
       {
-        style: { display: "flex", flexDirection: "column", alignItems: "center", background: "none", border: "none", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", padding: 0 }
+        className: "nav-key",
+        style: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: 63, background: "none", border: "none", color: "#fff", fontSize: 11, lineHeight: 1.15, textAlign: "center", fontWeight: 700, cursor: "pointer", padding: 0 }
       },
-      /* @__PURE__ */ React.createElement("div", { style: { fontSize: 25, filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.35)) drop-shadow(0 -1px 0 rgba(255,255,255,0.35))" } }, "\u{1F3E0}"),
+      /* @__PURE__ */ React.createElement("div", { className: "nav-cap" }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 20, lineHeight: 1, filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.35))" } }, "\u{1F3E0}")),
       t.home
     )), /* @__PURE__ */ React.createElement(
       "button",
@@ -3045,18 +3079,20 @@ function HomeExpenses() {
           },
           t.newCategorySave
         )))),
-        /* @__PURE__ */ React.createElement("div", { style: { flex: "none", padding: "10px 18px 24px", borderTop: "1px solid #F0F1F5", background: "#fff" } }, /* @__PURE__ */ React.createElement(
+        /* @__PURE__ */ React.createElement("div", { style: { flex: "none", padding: "10px 18px 20px", borderTop: "1px solid #F0F1F5", background: "#fff" } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             type: "button",
+            className: "btn-raised",
             onClick: addEntry,
             disabled: saving,
             style: {
+              "--edge": "#1F7440",
               width: "100%",
               padding: "13px",
               borderRadius: 12,
               border: "none",
-              background: "#2E9E5B",
+              backgroundColor: "#2E9E5B",
               color: "#fff",
               fontWeight: 700,
               fontSize: 15,
@@ -3065,17 +3101,19 @@ function HomeExpenses() {
             }
           },
           saving ? t.saving : editingId ? t.saveChanges : addTab === "expense" ? t.addExpense : t.addIncome
-        ), addTab === "expense" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, margin: "10px 0 0" } }, /* @__PURE__ */ React.createElement(
+        ), addTab === "expense" && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, margin: "14px 0 0" } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             type: "button",
+            className: "btn-raised",
             onClick: () => setShowNewCategoryForm((v) => !v),
             style: {
+              "--edge": "#1F7440",
               flex: 1,
               padding: "8px 10px",
               borderRadius: 20,
               border: "1px solid #2E9E5B",
-              background: "#2E9E5B",
+              backgroundColor: "#2E9E5B",
               fontSize: 13,
               cursor: "pointer",
               color: "#fff",
@@ -3092,13 +3130,15 @@ function HomeExpenses() {
           "button",
           {
             type: "button",
+            className: "btn-raised",
             onClick: () => setShowCategoryManager(true),
             style: {
+              "--edge": "#B03226",
               flex: 1,
               padding: "8px 10px",
               borderRadius: 20,
               border: "1px solid #E64A3B",
-              background: "#E64A3B",
+              backgroundColor: "#E64A3B",
               fontSize: 13,
               cursor: "pointer",
               color: "#fff",
@@ -3115,13 +3155,15 @@ function HomeExpenses() {
           "button",
           {
             type: "button",
+            className: "btn-raised",
             onClick: () => setShowCalculator(true),
             style: {
+              "--edge": "#BB590C",
               flex: 1,
               padding: "8px 10px",
               borderRadius: 20,
               border: "1px solid #F4791F",
-              background: "#F4791F",
+              backgroundColor: "#F4791F",
               fontSize: 13,
               cursor: "pointer",
               color: "#fff",
